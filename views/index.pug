@@ -1,0 +1,6 @@
+extends layout
+block content
+    h1 Tracks
+    each track in tracks 
+        a(href='/' + track.name) #{track.name}
+        br

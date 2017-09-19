@@ -1,0 +1,6 @@
+extends layout
+block content
+    h1 Tracks
+    div
+        each point in points
+            p #{point.lat} #{point.lon} #{point.altitude} #{point.speed} #{point.bearing}
