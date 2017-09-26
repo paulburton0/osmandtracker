@@ -3,7 +3,7 @@ var router = express.Router();
 var request = require('request');
 var track = require('../libs/track'); 
 
-const apiKey = 'AIzaSyBq19VvTo2il5kgW1oV2NW6y6sF83EI7AI';
+const mapApiKey = 'AIzaSyBq19VvTo2il5kgW1oV2NW6y6sF83EI7AI';
 
 router.get('/', function(req, res, next){
     track.getTracks(function(err, tracks){
@@ -18,11 +18,11 @@ router.get('/', function(req, res, next){
                 var hour = trackDate.getHours();
                 var minute = trackDate.getMinutes();
                 var dateString = new Date(year, month, day, hour, minute).toString();
-				request('https://maps.googleapis.com/maps/api/geocode/json?latlng=' + points[0].lat + ',' + points[0].lon + '&key=' + apiKey, function(error, response, body) {  
+				request('https://maps.googleapis.com/maps/api/geocode/json?latlng=' + points[0].lat + ',' + points[0].lon + '&key=' + mapApiKey, function(error, response, body) {  
                     if(error) console.error(error);
 					var startDetails = JSON.parse(body);
 					var startAddress = startDetails.results[0].formatted_address;
-					request('https://maps.googleapis.com/maps/api/geocode/json?latlng=' + points[points.length-1].lat + ',' + points[points.length-1].lon + '&key=' + apiKey, function(error, response, body) {  
+					request('https://maps.googleapis.com/maps/api/geocode/json?latlng=' + points[points.length-1].lat + ',' + points[points.length-1].lon + '&key=' + mapApiKey, function(error, response, body) {  
                         if(error) console.error(error);
 						var endDetails = JSON.parse(body);
 						var endAddress = endDetails.results[0].formatted_address;
@@ -113,7 +113,7 @@ router.get(/\/[0-9]+/, function(req, res, next) {
 		  //altArr.push(altDataSet[i]);
 		  //spdArr.push(spdDataSet[i]);
 		//}
-        res.render('track', {trackName, dataSet: JSON.stringify(dataSet), totalDistance, maxSpeed, avgSpeed, movingAvg, mapPoints: latLon, mapCenter, trackStart, trackEnd, elapsedTime});
+        res.render('track', {trackName, dataSet: JSON.stringify(dataSet), totalDistance, maxSpeed, avgSpeed, movingAvg, mapPoints: latLon, mapCenter, trackStart, trackEnd, elapsedTime, mapApiKey});
     });        
 });
 

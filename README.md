@@ -4,6 +4,12 @@ OSMAndTracker records track details uploaded via the Trip Recording plugin for t
 
 # Prerequisites
 
+## Google Maps API Key
+
+You must obtain a Google Maps JavaScript API Key. Go to https://developers.google.com/maps/documentation/javascript/get-api-key to get a key and record the key in routes/index.js as below:
+
+    const apiKey = 'YOUR KEY HERE';
+
 ## Android
 
 In order to record tracks, you must have the OSMAnd app installed on an Android device.
