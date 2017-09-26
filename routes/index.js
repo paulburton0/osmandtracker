@@ -10,7 +10,7 @@ router.get('/', function(req, res, next){
         var tracksListing = new Array();
         var iterator = tracks.length;
         for(i=0; i<tracks.length; i++){
-            track.getTrackDetails(tracks[i], function(err, trackName, points, totalDistance, maxSpeed, avgSpeed, movingAvg, latLon, mapCenter, trackStart, trackEnd, elapsedTime){
+            track.getTrackDetails(tracks[i], function(err, trackName, points, totalDistance, maxSpeed, avgSpeed, movingAvg, latLon, mapCenter, trackStart, trackEnd, elapsedTime, movingTime){
                 var trackDate = new Date(Number(trackName));
                 var year = trackDate.getFullYear();
                 var month = trackDate.getMonth();
@@ -90,7 +90,7 @@ router.get('/track', function(req, res, next) {
 
 router.get(/\/[0-9]+/, function(req, res, next) {
     var trackName = req.originalUrl.substring(1, req.originalUrl.length);
-    track.getTrackDetails(trackName, function(err, trackName, points, totalDistance, maxSpeed, avgSpeed, movingAvg, latLon, mapCenter, trackStart, trackEnd, elapsedTime){
+    track.getTrackDetails(trackName, function(err, trackName, points, totalDistance, maxSpeed, avgSpeed, movingAvg, latLon, mapCenter, trackStart, trackEnd, elapsedTime, movingTime){
         if(err) console.error(err);
         var dataSet = [[{type: 'date', label: 'Time'}, {type: 'number', label: 'Speed'}, {type: 'number', label: 'Elevation'}]];
         for(x=0; x<points.length; x++){
@@ -113,7 +113,7 @@ router.get(/\/[0-9]+/, function(req, res, next) {
 		  //altArr.push(altDataSet[i]);
 		  //spdArr.push(spdDataSet[i]);
 		//}
-        res.render('track', {trackName, dataSet: JSON.stringify(dataSet), totalDistance, maxSpeed, avgSpeed, movingAvg, mapPoints: latLon, mapCenter, trackStart, trackEnd, elapsedTime, mapApiKey});
+        res.render('track', {trackName, dataSet: JSON.stringify(dataSet), totalDistance, maxSpeed, avgSpeed, movingAvg, mapPoints: latLon, mapCenter, trackStart, trackEnd, elapsedTime, movingTime, mapApiKey});
     });        
 });
 

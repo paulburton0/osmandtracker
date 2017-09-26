@@ -7,9 +7,11 @@ block content
                     var tracks = [];
                     var checkboxes = document.getElementsByClassName('trackSelect');
                     var link = '/merge?';
-                    for (var i = checkboxes.length - 1; i > 0 ; i--) {
-                        if (checkboxes[i].type == 'checkbox' && checkboxes[i].checked) {
-                            link += 'tracks=' + checkboxes[i].value + '&';
+                    if(checkboxes){
+                        for (var i = checkboxes.length - 1; i > 0 ; i--) {
+                            if (checkboxes[i].type == 'checkbox' && checkboxes[i].checked) {
+                                link += 'tracks=' + checkboxes[i].value + '&';
+                            }
                         }
                     }
                     $(this).attr('href', link);
@@ -18,14 +20,19 @@ block content
                     var tracks = [];
                     var checkboxes = document.getElementsByClassName('trackSelect');
                     var link = '/delete?';
-                    for (var i = checkboxes.length - 1; i > 0 ; i--) {
-                        if (checkboxes[i].type == 'checkbox' && checkboxes[i].checked) {
-                            link += 'tracks=' + checkboxes[i].value + '&';
+                    if(checkboxes){
+                        for (var i = checkboxes.length - 1; i > 0 ; i--) {
+                            if (checkboxes[i].type == 'checkbox' && checkboxes[i].checked) {
+                                link += 'tracks=' + checkboxes[i].value + '&';
+                            }
                         }
                     }
                     $(this).attr('href', link);
                 });
             });
+        if errorMsg
+            .warning.alert-warning
+                #{errorMsg}
         h1 Tracks
         input(type='hidden').trackSelect
         if tracks != ''
