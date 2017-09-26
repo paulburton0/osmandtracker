@@ -18,7 +18,6 @@ router.get('/', function(req, res, next){
                 var hour = trackDate.getHours();
                 var minute = trackDate.getMinutes();
                 var dateString = new Date(year, month, day, hour, minute).toString();
-                console.log('https://maps.googleapis.com/maps/api/geocode/json?latlng=' + points[0].lat + ',' + points[0].lon + '&key=' + apiKey);
 				request('https://maps.googleapis.com/maps/api/geocode/json?latlng=' + points[0].lat + ',' + points[0].lon + '&key=' + apiKey, function(error, response, body) {  
                     if(error) console.error(error);
 					var startDetails = JSON.parse(body);
