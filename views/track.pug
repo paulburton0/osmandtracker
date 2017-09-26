@@ -1,6 +1,123 @@
 extends layout
 block content
-    h1 Tracks
-    div
-        each point in points
-            p #{point.lat} #{point.lon} #{point.altitude} #{point.speed} #{point.bearing}
+    style.
+        html{
+            height: 100%;
+            width: 100%;
+        }
+        body{
+            height: 100%;
+            width: 100%;
+        }
+        #map{
+            height: 50%;
+            width: 83%;
+            position: absolute;
+            margin-top: 200px;
+        }
+        .bold{
+            font-weight: bold;    
+        }
+    script.
+        google.charts.load('current', {packages: ['corechart']});
+        google.charts.setOnLoadCallback(drawChart);
+        function drawChart() {
+            var data = new google.visualization.arrayToDataTable(!{dataSet});
+            var options = {
+                title: 'Track Speed & Altitude',
+                colors: ['blue', 'green'],
+                hAxis: {title: 'Time',  titleTextStyle: {color: '#333'}, format: 'HH:mm'},
+                series: {
+                    0: {targetAxisIndex:0},
+                    1: {targetAxisIndex:1}
+                },
+                vAxes: {
+                    0: {title: 'MPH', minValue: 0},
+                    1: {title: 'Feet', minValue: 0}
+                },
+                legend: {position: 'in'}
+            };
+            var trackChart = new google.visualization.AreaChart(document.getElementById('trackChart'));
+            trackChart.draw(data, options);
+        }
+
+        function initMap() {
+            var map = new google.maps.Map(document.getElementById('map'), {
+                mapTypeId: 'terrain'
+
+            });
+
+            var markers = #{mapPoints};
+            var bounds = new google.maps.LatLngBounds();
+            for(i=0;i<markers.length;i++) {
+                bounds.extend(markers[i]);
+            }
+
+            map.setCenter(bounds.getCenter());
+            map.fitBounds(bounds);
+            //map.setZoom(map.getZoom()-1);
+
+            var startMarker = new google.maps.Marker({
+                    position: #{trackStart},
+                    map: map,
+                    title: 'Start',
+                    label: 'A'
+                });
+
+            var endMarker = new google.maps.Marker({
+                    position: #{trackEnd},
+                    map: map,
+                    title: 'End',
+                    label: 'B'
+                });
+
+            var trackCoordinates = #{mapPoints};
+
+            var trackPath = new google.maps.Polyline({
+                path: trackCoordinates,
+                geodesic: false,
+                strokeColor: '#FF0000',
+                strokeOpacity: 1.0,
+                strokeWeight: 2
+            });
+
+            trackPath.setMap(map);
+        }
+
+    .container
+        a(href="http://soren625.duckdns.org:3001" role='button').btn.btn-primary 
+            <span class="glyphicon glyphicon-arrow-left"></span> <span>Home</span>
+        h1 Track Details
+        .row
+            .col-md-3
+                p 
+                    span.font-weight-bold Total Distance: 
+                    | #{totalDistance}
+            .col-md-3
+                p 
+                    span.font-weight-bold Max Speed: 
+                    | #{maxSpeed} MPH
+            .col-md-3
+                p 
+                    span.font-weight-bold Average Speed: 
+                    | #{avgSpeed}
+            .col-md-3
+                p 
+                    span.font-weight-bold Moving Average: 
+                    | #{movingAvg}
+        .row
+            .col-md-3
+                p 
+                    span.font-weight-bold Elapsed Time: 
+                    | #{elapsedTime}
+            .col-md-3
+                p 
+                    span.font-weight-bold Moving Time: 
+                    | 
+            .col-md-3
+                p &nbsp;
+            .col-md-3
+                p &nbsp;
+        div(id="map")
+        div(id="trackChart")
+        script(src!='https://maps.googleapis.com/maps/api/js?key=AIzaSyBq19VvTo2il5kgW1oV2NW6y6sF83EI7AI&callback=initMap')

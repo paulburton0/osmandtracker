@@ -1,6 +1,60 @@
 extends layout
 block content
-    h1 Tracks
-    each track in tracks 
-        a(href='/' + track.name) #{track.name}
-        br
+    .container
+        script.
+            $(document).ready(function () {
+                $('.mergeTracks').click(function() {
+                    var tracks = [];
+                    var checkboxes = document.getElementsByClassName('trackSelect');
+                    var link = '/merge?';
+                    for (var i = checkboxes.length - 1; i > 0 ; i--) {
+                        if (checkboxes[i].type == 'checkbox' && checkboxes[i].checked) {
+                            link += 'tracks=' + checkboxes[i].value + '&';
+                        }
+                    }
+                    $(this).attr('href', link);
+                });
+                $('.deleteTracks').click(function() {
+                    var tracks = [];
+                    var checkboxes = document.getElementsByClassName('trackSelect');
+                    var link = '/delete?';
+                    for (var i = checkboxes.length - 1; i > 0 ; i--) {
+                        if (checkboxes[i].type == 'checkbox' && checkboxes[i].checked) {
+                            link += 'tracks=' + checkboxes[i].value + '&';
+                        }
+                    }
+                    $(this).attr('href', link);
+                });
+            });
+        h1 Tracks
+        input(type='hidden').trackSelect
+        if tracks != ''
+            .row
+                .col-md-3
+                    p.font-weight-bold Track Start Time
+                .col-md-2
+                    p.font-weight-bold Track Distance
+                .col-md-3
+                    p.font-weight-bold Track Start Location
+                .col-md-3
+                    p.font-weight-bold Track End Location
+            each track in tracks
+                - var dateAndTime = track.date.replace(/:00 GMT.*/, '');
+                .row
+                    .col-md-3
+                        input(value= track.timestamp type='checkbox').trackSelect
+                        |  
+                        a(href='/' + track.timestamp) #{dateAndTime}
+                    .col-md-2
+                        p #{track.distance}
+                    .col-md-3
+                        p #{track.startAddress}
+                    .col-md-3
+                        p #{track.endAddress}
+        else
+            p No tracks to display.
+        .row
+            .col-md-1
+                a(href='' role='button').btn.btn-primary.mergeTracks Merge
+            .col-md-1
+                a(href='' role='button').btn.btn-primary.deleteTracks Delete 
