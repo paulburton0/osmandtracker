@@ -2,37 +2,92 @@ extends layout
 block content
     .container
         script.
-            $(document).ready(function () {
-                $('.mergeTracks').click(function() {
+            $(document).ready(function(){
+                $('#mergeTracks').click(function(){
                     var tracks = [];
                     var checkboxes = document.getElementsByClassName('trackSelect');
                     var link = '/merge?';
+                    var checked;
                     if(checkboxes){
-                        for (var i = checkboxes.length - 1; i > 0 ; i--) {
-                            if (checkboxes[i].type == 'checkbox' && checkboxes[i].checked) {
+                        for (var i = checkboxes.length - 1; i > 0 ; i--){
+                            if (checkboxes[i].type == 'checkbox' && checkboxes[i].checked){
                                 link += 'tracks=' + checkboxes[i].value + '&';
+                                checked++;
                             }
                         }
+                        if(checked === 2){
+                            $(this).attr('href', link);
+                        }else{
+                            $("<div>You must select two tracks to merge.</div>").dialog({
+                                title: 'Error',
+                                resizable: false,
+                                modal: true,
+                                buttons: {
+                                    'Ok': function(){
+                                        $(this).dialog('close');
+                                    }
+                                }
+                            });
+                            return false;
+                        }
+                    } else {
+                        $("<div>You must select two tracks to merge.</div>").dialog({
+                            title: 'Error',
+                            resizable: false,
+                            modal: true,
+                            buttons: {
+                                'Ok': function(){
+                                    $(this).dialog('close');
+                                }
+                            }
+                        });
+                        return false;
                     }
-                    $(this).attr('href', link);
                 });
-                $('.deleteTracks').click(function() {
+                $('#deleteTracks').click(function(){
                     var tracks = [];
                     var checkboxes = document.getElementsByClassName('trackSelect');
                     var link = '/delete?';
+                    var checked;
                     if(checkboxes){
-                        for (var i = checkboxes.length - 1; i > 0 ; i--) {
-                            if (checkboxes[i].type == 'checkbox' && checkboxes[i].checked) {
+                        for (var i = checkboxes.length - 1; i > 0 ; i--){
+                            if (checkboxes[i].type == 'checkbox' && checkboxes[i].checked){
                                 link += 'tracks=' + checkboxes[i].value + '&';
+                                checked++;
                             }
                         }
+                        if(checked){
+                            $(this).attr('href', link);
+                        } else{
+                            $("<div>You must select at least one track to delete.</div>").dialog({
+                                title: 'Error',
+                                resizable: false,
+                                modal: true,
+                                buttons: {
+                                    'Ok': function(){
+                                        $(this).dialog('close');
+                                    }
+                                }
+                            });
+                            return false;
+                        }
+                    } else {
+                        $("<div>You must select at least one track to delete.</div>").dialog({
+                            title: 'Error',
+                            resizable: false,
+                            modal: true,
+                            buttons: {
+                                'Ok': function(){
+                                    $(this).dialog('close');
+                                }
+                            }
+                        });
+                        return false;
                     }
-                    $(this).attr('href', link);
                 });
             });
-        if errorMsg
-            .warning.alert-warning
-                #{errorMsg}
+        div(id="alert" style='display:none').alert.alert-warning
+            p You must select two tracks to merge.
         h1 Tracks
         input(type='hidden').trackSelect
         if tracks != ''
@@ -62,6 +117,6 @@ block content
             p No tracks to display.
         .row
             .col-md-1
-                a(href='' role='button').btn.btn-primary.mergeTracks Merge
+                a(href='' role='button' id='mergeTracks').btn.btn-primary Merge
             .col-md-1
-                a(href='' role='button').btn.btn-primary.deleteTracks Delete 
+                a(href='' role='button' id='deleteTracks').btn.btn-primary Delete 
