@@ -7,7 +7,7 @@ block content
                     var tracks = [];
                     var checkboxes = document.getElementsByClassName('trackSelect');
                     var link = '/merge?';
-                    var checked;
+                    var checked = 0;
                     if(checkboxes){
                         for (var i = checkboxes.length - 1; i > 0 ; i--){
                             if (checkboxes[i].type == 'checkbox' && checkboxes[i].checked){
@@ -15,7 +15,7 @@ block content
                                 checked++;
                             }
                         }
-                        if(checked === 2){
+                        if(checked == 2){
                             $(this).attr('href', link);
                         }else{
                             $("<div>You must select two tracks to merge.</div>").dialog({
@@ -48,7 +48,7 @@ block content
                     var tracks = [];
                     var checkboxes = document.getElementsByClassName('trackSelect');
                     var link = '/delete?';
-                    var checked;
+                    var checked = 0;
                     if(checkboxes){
                         for (var i = checkboxes.length - 1; i > 0 ; i--){
                             if (checkboxes[i].type == 'checkbox' && checkboxes[i].checked){
