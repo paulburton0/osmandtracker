@@ -55,6 +55,13 @@ exports.getTracks = function(cb){
             del = collectionNames.indexOf('system.indexes');
 		    collectionNames.splice(del, 1);
 			db.close();
+            collectionNames.sort(function(a, b){
+                if (Number(a) < Number(b))
+                    return -1;
+                if (Number(a) > Number(b))
+                    return 1;
+                return 0;
+            });
 			return cb(null, collectionNames);
 		});
 	});
@@ -94,6 +101,13 @@ exports.getTrackDetails = function(track, cb) {
         db.collection(track).find().toArray(function(err, points) {
             if(err) return cb(err);
             db.close();
+            points.sort(function(a, b){
+                if (Number(a.timestamp) < Number(b.timestamp))
+                    return -1;
+                if (Number(a.timestamp) > Number(b.timestamp))
+                    return 1;
+                return 0;
+            });
             for(i=0; i<points.length; i++){
                 if(i < points.length - 1 ){
                     if(Number(points[i+1].speed) > 0){
