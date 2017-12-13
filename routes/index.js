@@ -11,6 +11,23 @@ router.get('/', function(req, res, next){
         var iterator = tracks.length;
         for(i=0; i<tracks.length; i++){
             track.getTrackDetails(tracks[i], function(err, trackName, points, totalDistance, maxSpeed, avgSpeed, movingAvg, latLon, mapCenter, trackStart, trackEnd, elapsedTime, movingTime){
+                if(err){
+                    console.error(err);
+                    iterator--;
+                    if(!iterator){
+                        tracksListing.sort(function(a, b){
+                            if (Number(a.timestamp) < Number(b.timestamp))
+                                return -1;
+                            if (Number(a.timestamp) > Number(b.timestamp))
+                                return 1;
+                            return 0;
+                        });
+                        res.render('index', {tracks: tracksListing});
+                    }
+                    else{
+                        return; 
+                    }
+                }
                 var trackDate = new Date(Number(trackName));
                 var year = trackDate.getFullYear();
                 var month = trackDate.getMonth();
@@ -18,13 +35,26 @@ router.get('/', function(req, res, next){
                 var hour = trackDate.getHours();
                 var minute = trackDate.getMinutes();
                 var dateString = new Date(year, month, day, hour, minute).toString();
-				request('https://maps.googleapis.com/maps/api/geocode/json?latlng=' + points[0].lat + ',' + points[0].lon + '&key=' + mapApiKey, function(error, response, body) {  
-                    if(error) console.error(error);
+				request('https://maps.googleapis.com/maps/api/geocode/json?latlng=' + points[0].lat + ',' + points[0].lon + '&key=' + mapApiKey, function(err, response, body) {  
+                    if(err){
+                        console.error(trackName + ' ' + err);
+                    }
 					var startDetails = JSON.parse(body);
+                    if(startDetails.error_message){
+                        console.error(startDetails.error_message);    
+                        return;
+                    }
 					var startAddress = startDetails.results[0].formatted_address;
-					request('https://maps.googleapis.com/maps/api/geocode/json?latlng=' + points[points.length-1].lat + ',' + points[points.length-1].lon + '&key=' + mapApiKey, function(error, response, body) {  
-                        if(error) console.error(error);
-						var endDetails = JSON.parse(body);
+					request('https://maps.googleapis.com/maps/api/geocode/json?latlng=' + points[points.length-1].lat + ',' + points[points.length-1].lon + '&key=' + mapApiKey, function(err, response, body) {  
+                        if(err){
+                            console.error(err);
+                            return;
+                        }
+                        var endDetails = JSON.parse(body);
+                        if(endDetails.error_message){
+                            console.error(endDetails.error_message);    
+                            return;
+                        }
 						var endAddress = endDetails.results[0].formatted_address;
 						tracksListing.push({'timestamp': trackName, 'date': dateString, 'distance': totalDistance, 'start': trackStart, startAddress, 'end': trackEnd, endAddress});
 						iterator--;

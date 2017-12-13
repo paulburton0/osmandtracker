@@ -1,0 +1,50 @@
+#!/bin/bash
+
+appname=$(basename $0)
+apppath="$HOME/$appname/"
+
+if [ ! -e "$apppath/logs" ]; then
+    mkdir "$apppath/logs"
+fi
+
+case "$1" in
+    start)
+        if [ "$(pidof $appname)" == '' ]; then
+            echo -n "Starting $appname ... "
+            cd $apppath
+            exec -a "$appname" node ./bin/www 2>>logs/error.log 1>>logs/access.log &
+            echo "done. "
+        else
+            echo "$appname is already running."
+        fi
+        ;;
+    stop)
+        if [ "$(pidof $appname)" == '' ]; then
+            echo "$appname is not running."
+        else
+            echo -n "Stopping $appname ... "
+            pkill -o -f "$appname" 2>/dev/null
+            echo "done."
+        fi
+        ;;
+    restart)
+        if [ "$(pidof $appname)" == '' ]; then
+            echo -n "$appname is not running. Starting it now ..."
+            cd $apppath
+            exec -a "$appname" node ./bin/www 2>>logs/error.log 1>>logs/access.log &
+            echo "done."
+        else
+            echo -n "Restarting $appname ... "
+            pkill -o -f "$appname" 2>/dev/null
+            cd $apppath
+            exec -a "$appname" node ./bin/www 2>>logs/error.log 1>>logs/access.log &
+            echo "done. "
+        fi
+        ;;
+    help)
+        echo "$appname [start|stop|restart]"
+        ;;
+    *)
+        echo "$appname [start|stop|restart]"
+        ;;
+esac

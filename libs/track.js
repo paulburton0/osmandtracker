@@ -99,7 +99,12 @@ exports.getTrackDetails = function(track, cb) {
         var movingTime = 0;
         var latLon = '[';
         db.collection(track).find().toArray(function(err, points) {
-            if(err) return cb(err);
+            if(points.length <= 1){
+                err = 'Not enough points for track ' + track;
+            }
+            if(err){
+                return cb(err);
+            }
             db.close();
             points.sort(function(a, b){
                 if (Number(a.timestamp) < Number(b.timestamp))
