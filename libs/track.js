@@ -1,5 +1,4 @@
 var geo = require('geolib');
-var googlemaps = require('googlemaps');
 var MongoClient = require('mongodb').MongoClient;
 var assert = require('assert');
 const db = 'tracks';
