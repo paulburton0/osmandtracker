@@ -13,7 +13,6 @@
     "debug": "~2.6.3",
     "express": "~4.15.2",
     "geolib": "^2.0.23",
-    "googlemaps": "^1.12.0",
     "mongodb": "^2.2.31",
     "morgan": "~1.8.1",
     "pug": "~2.0.0-beta11",
