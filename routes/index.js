@@ -65,7 +65,6 @@ router.get('/', function(req, res, next){
 									return 1;
 								return 0;
 							});
-                            console.error(lastPage);
 							res.render('index', {start, lastPage, tracks: tracksListing});
 						}
 					});
