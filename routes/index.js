@@ -6,7 +6,8 @@ var track = require('../libs/track');
 const mapApiKey = 'AIzaSyBq19VvTo2il5kgW1oV2NW6y6sF83EI7AI';
 
 router.get('/', function(req, res, next){
-    track.getTracks(function(err, tracks){
+    var start = req.query.start ? req.query.start : 0;
+    track.getTracks(start, function(err, lastPage, tracks){
         var tracksListing = new Array();
         var iterator = tracks.length;
         for(i=0; i<tracks.length; i++){
@@ -22,9 +23,7 @@ router.get('/', function(req, res, next){
                                 return 1;
                             return 0;
                         });
-                        res.render('index', {tracks: tracksListing});
-                    }
-                    else{
+                    }else{
                         return; 
                     }
                 }
@@ -66,7 +65,8 @@ router.get('/', function(req, res, next){
 									return 1;
 								return 0;
 							});
-							res.render('index', {tracks: tracksListing});
+                            console.error(lastPage);
+							res.render('index', {start, lastPage, tracks: tracksListing});
 						}
 					});
 				});

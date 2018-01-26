@@ -44,11 +44,20 @@ exports.getLastTrack = function(cb){
 		});
 	});
 }
-exports.getTracks = function(cb){
+exports.getTracks = function(start, cb){
+    start = Number(start);
 	MongoClient.connect(url, function(err, db) {
 		assert.equal(null, err);
 		db.listCollections().toArray(function(err, items) {
+            var lastPage = false;
             var collectionNames = new Array();
+            var end;
+            if(items.length - start <= 10){
+                end = items.length - 1; 
+                lastPage = true;
+            }else{
+                end = start + 10;
+            }
             for(i=0; i<items.length; i++){
                 collectionNames.push(items[i].name);
             }
@@ -62,7 +71,8 @@ exports.getTracks = function(cb){
                     return 1;
                 return 0;
             });
-			return cb(null, collectionNames);
+            trimmedCollections = collectionNames.slice(start, end);
+			return cb(null, lastPage,  trimmedCollections);
 		});
 	});
 }

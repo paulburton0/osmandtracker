@@ -89,6 +89,32 @@ block content
         div(id="alert" style='display:none').alert.alert-warning
             p You must select two tracks to merge.
         h1 Tracks
+        .row
+            - if(Number(start) == 0){
+                .col-md-1
+                    a(role='button' href='http://soren625.duckdns.org:3001/?start=' + prev).btn.btn-primary.disabled
+                        span.glyphicon.glyphicon-arrow-left
+            - } else {
+                .col-md-1
+                    - var prev = Number(start) - 10;
+                    a(role='button' href='http://soren625.duckdns.org:3001/?start=' + prev).btn.btn-primary
+                        span.glyphicon.glyphicon-arrow-left
+            - }
+            .col-md-1
+                a(href='' role='button' id='mergeTracks').btn.btn-primary Merge
+            .col-md-1
+                a(href='' role='button' id='deleteTracks').btn.btn-primary Delete 
+            - if(!lastPage){
+                .col-md-1
+                    - var next = Number(start) + 10;
+                    a(role='button' href='http://soren625.duckdns.org:3001/?start=' + next).btn.btn-primary
+                        span.glyphicon.glyphicon-arrow-right
+            - } else {
+                .col-md-1
+                    - var next = Number(start) + 10;
+                    a(role='button' href='http://soren625.duckdns.org:3001/?start=' + next).btn.btn-primary.disabled
+                        span.glyphicon.glyphicon-arrow-right
+            - }
         input(type='hidden').trackSelect
         if tracks != ''
             .row
@@ -116,7 +142,28 @@ block content
         else
             p No tracks to display.
         .row
+            - if(Number(start) == 0){
+                .col-md-1
+                    a(role='button' href='http://soren625.duckdns.org:3001/?start=' + prev).btn.btn-primary.disabled
+                        span.glyphicon.glyphicon-arrow-left
+            - } else {
+                .col-md-1
+                    - var prev = Number(start) - 10;
+                    a(role='button' href='http://soren625.duckdns.org:3001/?start=' + prev).btn.btn-primary
+                        span.glyphicon.glyphicon-arrow-left
+            - }
             .col-md-1
                 a(href='' role='button' id='mergeTracks').btn.btn-primary Merge
             .col-md-1
                 a(href='' role='button' id='deleteTracks').btn.btn-primary Delete 
+            - if(!lastPage){
+                .col-md-1
+                    - var next = Number(start) + 10;
+                    a(role='button' href='http://soren625.duckdns.org:3001/?start=' + next).btn.btn-primary
+                        span.glyphicon.glyphicon-arrow-right
+            - } else {
+                .col-md-1
+                    - var next = Number(start) + 10;
+                    a(role='button' href='http://soren625.duckdns.org:3001/?start=' + next).btn.btn-primary.disabled
+                        span.glyphicon.glyphicon-arrow-right
+            - }
