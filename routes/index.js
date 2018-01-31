@@ -17,9 +17,9 @@ router.get('/', function(req, res, next){
                     iterator--;
                     if(!iterator){
                         tracksListing.sort(function(a, b){
-                            if (Number(a.timestamp) < Number(b.timestamp))
-                                return -1;
                             if (Number(a.timestamp) > Number(b.timestamp))
+                                return -1;
+                            if (Number(a.timestamp) < Number(b.timestamp))
                                 return 1;
                             return 0;
                         });
@@ -59,9 +59,9 @@ router.get('/', function(req, res, next){
 						iterator--;
 						if(!iterator){
 							tracksListing.sort(function(a, b){
-								if (Number(a.timestamp) < Number(b.timestamp))
-									return -1;
 								if (Number(a.timestamp) > Number(b.timestamp))
+									return -1;
+								if (Number(a.timestamp) < Number(b.timestamp))
 									return 1;
 								return 0;
 							});
