@@ -3,16 +3,36 @@ block content
     .container
         script.
             $(document).ready(function(){
-                $('.typeChange').on('change', function(){
-                    var trackDetails = this.value.split('-');
-                    var track = trackDetails[0];
-                    var type = trackDetails[1];
+                $('.typeChange').on('change', function(){ 
+                    var tsAndType = this.value.split('-');
+                    var track = tsAndType[0];
+                    var type = tsAndType[1];
+                    if(type == '???'){
+                        $("<div>You must select a valid type.</div>").dialog({
+                            title: 'Error',
+                            resizable: false,
+                            modal: true,
+                            buttons: {
+                                'Ok': function(){
+                                    $(this).dialog('close');
+                                }
+                            }
+                        });
+                        return false;
+                    }
                     $.ajax({
                         method: "POST",
                         url: "changetype",
                         data: { track: track, type: type }
                     }).done(function(msg){
-                        alert("Data Saved: " + msg);
+                        if(msg == 'OK'){
+                            $('#'+track).effect("highlight", {color: '#65FB67'}, 1000);
+                            $('#'+track).effect("highlight", {color: 'white'}, 1000);
+                        } else if(msg == 'Error'){
+                            $('#'+track).effect("highlight", {color: '#FF6E6C'}, 1000);
+                            $('#'+track).effect("highlight", {color: 'white'}, 1000);
+                        }
+                        return;
                     });
                 });
 
@@ -134,7 +154,7 @@ block content
                     p.font-weight-bold Start Time
                 .col-md-1
                     p.font-weight-bold Type
-                .col-md-1
+                .col-md-2
                     p.font-weight-bold Distance
                 .col-md-3
                     p.font-weight-bold Start Location
@@ -142,7 +162,7 @@ block content
                     p.font-weight-bold End Location
             each track in tracksListing
                 - var dateAndTime = track.date.replace(/:00 GMT.*/, '')
-                .row
+                .row(id=track.timestamp)
                     .col-md-3
                         input(value= track.timestamp type='checkbox').trackSelect
                         |  
@@ -152,11 +172,15 @@ block content
                             - if(track.type == 'walking'){
                                 option(value=track.timestamp + '-walking', selected="selected") Walking
                                 option(value=track.timestamp + '-driving') Driving
-                            - }else{
+                            - }else if(track.type == 'driving'){
                                 option(value=track.timestamp + '-walking') Walking
                                 option(value=track.timestamp + '-driving', selected="selected") Driving
+                            - }else{
+                                option(value=track.timestamp + '-walking') Walking
+                                option(value=track.timestamp + '-driving') Driving
+                                option(value=track.timestamp + '-???', selected="selected") ??? 
                             - }
-                    .col-md-1
+                    .col-md-2
                         p #{track.distance}
                     .col-md-3
                         p #{track.startAddress}

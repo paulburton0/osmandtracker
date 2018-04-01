@@ -77,8 +77,10 @@ router.get('/', function(req, res, next){
 router.post('/changetype', function(req, res, next){
     track.changeType(req.body.track, req.body.type, function(err){
         if(err){
+            res.send('Error');
             console.error(err);
         }
+        res.send('OK');
     });
 });
 

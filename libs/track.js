@@ -20,12 +20,18 @@ exports.deleteTrack = function(tracks, cb){
 
 exports.changeType = function(track, type, cb){
 	MongoClient.connect(url, function(err, db) {
-		if (err) throw err;
+		if (err){
+            db.close();
+            return cb(err);
+        }
         db.collection(track).find({'timestamp' : track}).toArray(function(err, trackDetails) {
             var trackDetails = trackDetails[0];
+            console.error(trackDetails);
             db.collection(track.toString()).updateOne({ 'timestamp' : track.toString() }, { 'lat' : trackDetails.lat, 'lon' : trackDetails.lon, 'timestamp' : trackDetails.timestamp, 'hdop' : trackDetails.hdop, 'altitude' : trackDetails.altitude, 'speed' : trackDetails.speed, 'type' : type }, function(err, res) {
-                if (err) return cb(err);
                 db.close();
+                if (err){
+                    return cb(err);
+                }
                 return cb(null);
             });
         });
