@@ -11,7 +11,7 @@ router.get('/', function(req, res, next){
         var tracksListing = new Array();
         var iterator = tracks.length;
         for(i=0; i<tracks.length; i++){
-            track.getTrackDetails(tracks[i], function(err, trackName, points, totalDistance, maxSpeed, avgSpeed, movingAvg, latLon, mapCenter, trackStart, trackEnd, elapsedTime, movingTime){
+            track.getTrackDetails(tracks[i], function(err, trackDetails){
                 if(err){
                     console.error(err);
                     iterator--;
@@ -27,16 +27,16 @@ router.get('/', function(req, res, next){
                         return; 
                     }
                 }
-                var trackDate = new Date(Number(trackName));
+                var trackDate = new Date(Number(trackDetails.trackName));
                 var year = trackDate.getFullYear();
                 var month = trackDate.getMonth();
                 var day = trackDate.getDate();
                 var hour = trackDate.getHours();
                 var minute = trackDate.getMinutes();
                 var dateString = new Date(year, month, day, hour, minute).toString();
-				request('https://maps.googleapis.com/maps/api/geocode/json?latlng=' + points[0].lat + ',' + points[0].lon + '&key=' + mapApiKey, function(err, response, body) {  
+				request('https://maps.googleapis.com/maps/api/geocode/json?latlng=' + trackDetails.points[0].lat + ',' + trackDetails.points[0].lon + '&key=' + mapApiKey, function(err, response, body) {  
                     if(err){
-                        console.error(trackName + ' ' + err);
+                        console.error(trackDetails.trackName + ' ' + err);
                     }
 					var startDetails = JSON.parse(body);
                     if(startDetails.error_message){
@@ -44,7 +44,7 @@ router.get('/', function(req, res, next){
                         return;
                     }
 					var startAddress = startDetails.results[0].formatted_address;
-					request('https://maps.googleapis.com/maps/api/geocode/json?latlng=' + points[points.length-1].lat + ',' + points[points.length-1].lon + '&key=' + mapApiKey, function(err, response, body) {  
+					request('https://maps.googleapis.com/maps/api/geocode/json?latlng=' + trackDetails.points[trackDetails.points.length-1].lat + ',' + trackDetails.points[trackDetails.points.length-1].lon + '&key=' + mapApiKey, function(err, response, body) {  
                         if(err){
                             console.error(err);
                             return;
@@ -55,7 +55,7 @@ router.get('/', function(req, res, next){
                             return;
                         }
 						var endAddress = endDetails.results[0].formatted_address;
-						tracksListing.push({'timestamp': trackName, 'date': dateString, 'distance': totalDistance, 'start': trackStart, startAddress, 'end': trackEnd, endAddress});
+						tracksListing.push({'timestamp': trackDetails.trackName, 'type': trackDetails.type, 'date': dateString, 'distance': trackDetails.totalDistance, 'start': trackDetails.trackStart, startAddress, 'end': trackDetails.trackEnd, endAddress});
 						iterator--;
 						if(!iterator){
 							tracksListing.sort(function(a, b){
@@ -65,11 +65,19 @@ router.get('/', function(req, res, next){
 									return 1;
 								return 0;
 							});
-							res.render('index', {start, lastPage, tracks: tracksListing});
+							res.render('index', {start, lastPage, tracksListing});
 						}
 					});
 				});
             });
+        }
+    });
+});
+
+router.post('/changetype', function(req, res, next){
+    track.changeType(req.body.track, req.body.type, function(err){
+        if(err){
+            console.error(err);
         }
     });
 });
@@ -85,6 +93,7 @@ router.get('/delete', function(req, res, next){
    track.deleteTrack(req.query.tracks, function(err){
       if(err) console.error(err); 
       res.redirect('/');
+      return;
    });
 });
 
@@ -119,11 +128,18 @@ router.get('/track', function(req, res, next) {
 
 router.get(/\/[0-9]+/, function(req, res, next) {
     var trackName = req.originalUrl.substring(1, req.originalUrl.length);
-    track.getTrackDetails(trackName, function(err, trackName, points, totalDistance, maxSpeed, avgSpeed, movingAvg, latLon, mapCenter, trackStart, trackEnd, elapsedTime, movingTime){
+    track.getTrackDetails(trackName, function(err, trackDetails){
         if(err) console.error(err);
+        var trackDate = new Date(Number(trackDetails.trackName));
+        var year = trackDate.getFullYear();
+        var month = trackDate.getMonth();
+        var day = trackDate.getDate();
+        var hour = trackDate.getHours();
+        var minute = trackDate.getMinutes();
+        trackDetails.dateString = new Date(year, month, day, hour, minute).toString();
         var dataSet = [[{type: 'date', label: 'Time'}, {type: 'number', label: 'Speed'}, {type: 'number', label: 'Elevation'}]];
-        for(x=0; x<points.length; x++){
-            var date = new Date(Number(points[x].timestamp));
+        for(x=0; x<trackDetails.points.length; x++){
+            var date = new Date(Number(trackDetails.points[x].timestamp));
             var year = date.getFullYear();
             var month = date.getMonth()+1;
             var day = date.getDate();
@@ -131,18 +147,10 @@ router.get(/\/[0-9]+/, function(req, res, next) {
             var minutes = date.getMinutes();
             var seconds = date.getSeconds();
             var pointDate = new Date(year, month, day, hours, minutes, seconds);
-            var row = ["Date("+year+", "+month+", "+day+", "+hours+", "+minutes+", "+seconds+")", Number(points[x].speed), Number(points[x].altitude)];
+            var row = ["Date("+year+", "+month+", "+day+", "+hours+", "+minutes+", "+seconds+")", Number(trackDetails.points[x].speed), Number(trackDetails.points[x].altitude)];
             dataSet.push(row);
         }
-		//var altArr = [];
-		//var spdArr = [];
-		//var maxVal = 5;
-		//var delta = Math.floor( altDataSet.length / maxVal );
-		//for (i = 0; i < altDataSet.length; i+=delta) {
-		  //altArr.push(altDataSet[i]);
-		  //spdArr.push(spdDataSet[i]);
-		//}
-        res.render('track', {trackName, dataSet: JSON.stringify(dataSet), totalDistance, maxSpeed, avgSpeed, movingAvg, mapPoints: latLon, mapCenter, trackStart, trackEnd, elapsedTime, movingTime, mapApiKey});
+        res.render('track', {trackDetails, dataSet: JSON.stringify(dataSet), mapApiKey});
     });        
 });
 

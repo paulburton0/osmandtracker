@@ -1,6 +1,5 @@
 var geo = require('geolib');
 var MongoClient = require('mongodb').MongoClient;
-var assert = require('assert');
 const db = 'tracks';
 const url = 'mongodb://localhost:27017/' + db;
 var exports = module.exports = {};
@@ -19,9 +18,22 @@ exports.deleteTrack = function(tracks, cb){
     });
 }
 
+exports.changeType = function(track, type, cb){
+	MongoClient.connect(url, function(err, db) {
+		if (err) throw err;
+        db.collection(track).find({'timestamp' : track}).toArray(function(err, trackDetails) {
+            var trackDetails = trackDetails[0];
+            db.collection(track.toString()).updateOne({ 'timestamp' : track.toString() }, { 'lat' : trackDetails.lat, 'lon' : trackDetails.lon, 'timestamp' : trackDetails.timestamp, 'hdop' : trackDetails.hdop, 'altitude' : trackDetails.altitude, 'speed' : trackDetails.speed, 'type' : type }, function(err, res) {
+                if (err) return cb(err);
+                db.close();
+                return cb(null);
+            });
+        });
+	});
+}
+
 exports.getLastTrack = function(cb){
 	MongoClient.connect(url, function(err, db) {
-		assert.equal(null, err);
 		db.listCollections().toArray(function(err, items) {
             var collectionNames = new Array();
             for(i=0; i<items.length; i++){
@@ -46,7 +58,6 @@ exports.getLastTrack = function(cb){
 exports.getTracks = function(start, cb){
     start = Number(start);
 	MongoClient.connect(url, function(err, db) {
-		assert.equal(null, err);
 		db.listCollections().toArray(function(err, items) {
             var lastPage = false;
             var collectionNames = new Array();
@@ -98,15 +109,16 @@ exports.mergeTracks = function(tracks, cb){
 exports.getTrackDetails = function(track, cb) {
 	MongoClient.connect(url, function(err, db) {
         if(err) throw err;
-        var totalDistance = 0;
         var distUnit;
-        var totalSpeed = 0;
-        var avgSpeed = 0;
-        var movingAvg = 0;
         var movingAvgNum = 0;
-        var maxSpeed = 0;
-        var movingTime = 0;
-        var latLon = '[';
+        var trackDetails = {trackName : track,
+                            totalDistance : 0,
+                            totalSpeed : 0,
+                            avgSpeed : 0,
+                            movingAvg : 0,
+                            maxSpeed : 0,
+                            movingTime : 0,
+                            latLon : '['};
         db.collection(track).find().toArray(function(err, points) {
             if(points.length <= 1){
                 err = 'Not enough points for track ' + track;
@@ -122,39 +134,41 @@ exports.getTrackDetails = function(track, cb) {
                     return 1;
                 return 0;
             });
+            trackDetails.type = points[0].type;
             for(i=0; i<points.length; i++){
                 if(i < points.length - 1 ){
                     if(Number(points[i+1].speed) > 0){
                         var segTime = Number(points[i+1].timestamp) - Number(points[i].timestamp);
-                        movingTime += Number(segTime);
+                        trackDetails.movingTime += Number(segTime);
                     }
                     var segDist = geo.getDistance(
                         {latitude: Number(points[i].lat), longitude: Number(points[i].lon)},
                         {latitude: Number(points[i+1].lat), longitude: Number(points[i+1].lon)}
                         );
-                    totalDistance += Number(segDist);
+                    trackDetails.totalDistance += Number(segDist);
                 }
                 if(i == points.length - 1){
-                    latLon += '{lat: ' + Number(points[i].lat) + ', lng: ' + Number(points[i].lon) + '}]';
+                    trackDetails.latLon += '{lat: ' + Number(points[i].lat) + ', lng: ' + Number(points[i].lon) + '}]';
                 }else{
-                    latLon += '{lat: ' + Number(points[i].lat) + ', lng: ' + Number(points[i].lon) + '}, ';
+                    trackDetails.latLon += '{lat: ' + Number(points[i].lat) + ', lng: ' + Number(points[i].lon) + '}, ';
                 }
-                totalSpeed += Number(points[i].speed);
+                trackDetails.totalSpeed += Number(points[i].speed);
                 if(points[i].speed != 0){
-                    movingAvg += points[i].speed;
+                    trackDetails.movingAvg += points[i].speed;
                     movingAvgNum++;
                 }
-                if(Number(points[i].speed) > maxSpeed) maxSpeed = Number(points[i].speed);
+                if(Number(points[i].speed) > trackDetails.maxSpeed) trackDetails.maxSpeed = Number(points[i].speed);
             }
-            movingTime = timeDifference(Number(movingTime), 0);
-            var elapsedTime = timeDifference(points[points.length-1].timestamp, points[0].timestamp);
-            var mapCenter = '{lat: ' + points[Math.round(points.length/2)].lat + ', lng: ' + points[Math.round(points.length/2)].lon + '}';
-            var trackStart = '{lat: ' + points[0].lat + ', lng: ' + points[0].lon + '}';
-            var trackEnd = '{lat: ' + points[points.length - 1].lat + ', lng: ' + points[points.length - 1].lon + '}';
-            avgSpeed = Math.round((totalSpeed / points.length) * 10) / 10 + ' MPH';
-            movingAvg = Math.round((movingAvg / movingAvgNum) * 10) / 10 + ' MPH';
-            totalDistance = Number(totalDistance) < 200 ? Math.round((Number(totalDistance) * 3.28084) * 10) / 10 + ' feet' : Math.round(((Number(totalDistance) * 3.28084) / 5280) * 10) / 10 + ' miles';
-            return cb(null, track, points, totalDistance, maxSpeed, avgSpeed, movingAvg, latLon, mapCenter, trackStart, trackEnd, elapsedTime, movingTime);
+            trackDetails.points = points;
+            trackDetails.movingTime = timeDifference(Number(trackDetails.movingTime), 0);
+            trackDetails.elapsedTime = timeDifference(points[points.length-1].timestamp, points[0].timestamp);
+            trackDetails.mapCenter = '{lat: ' + points[Math.round(points.length/2)].lat + ', lng: ' + points[Math.round(points.length/2)].lon + '}';
+            trackDetails.trackStart = '{lat: ' + points[0].lat + ', lng: ' + points[0].lon + '}';
+            trackDetails.trackEnd = '{lat: ' + points[points.length - 1].lat + ', lng: ' + points[points.length - 1].lon + '}';
+            trackDetails.avgSpeed = Math.round((trackDetails.totalSpeed / points.length) * 10) / 10 + ' MPH';
+            trackDetails.movingAvg = Math.round((trackDetails.movingAvg / movingAvgNum) * 10) / 10 + ' MPH';
+            trackDetails.totalDistance = Number(trackDetails.totalDistance) < 200 ? Math.round((Number(trackDetails.totalDistance) * 3.28084) * 10) / 10 + ' feet' : Math.round(((Number(trackDetails.totalDistance) * 3.28084) / 5280) * 10) / 10 + ' miles';
+            return cb(null, trackDetails);
         });
     });
 }

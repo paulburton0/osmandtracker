@@ -71,7 +71,7 @@ block content
 
             });
 
-            var markers = #{mapPoints};
+            var markers = #{trackDetails.latLon};
             var bounds = new google.maps.LatLngBounds();
             for(i=0;i<markers.length;i++) {
                 bounds.extend(markers[i]);
@@ -82,20 +82,20 @@ block content
             //map.setZoom(map.getZoom()-1);
 
             var startMarker = new google.maps.Marker({
-                    position: #{trackStart},
+                    position: #{trackDetails.trackStart},
                     map: map,
                     title: 'Start',
                     label: 'A'
                 });
 
             var endMarker = new google.maps.Marker({
-                    position: #{trackEnd},
+                    position: #{trackDetails.trackEnd},
                     map: map,
                     title: 'End',
                     label: 'B'
                 });
 
-            var trackCoordinates = #{mapPoints};
+            var trackCoordinates = #{trackDetails.latLon};
 
             var trackPath = new google.maps.Polyline({
                 path: trackCoordinates,
@@ -111,33 +111,33 @@ block content
     .container
         a(href="http://soren625.duckdns.org:3001" role='button').btn.btn-primary 
             <span class="glyphicon glyphicon-arrow-left"></span> <span>Tracks</span>
-        h1 Track Details
+        h2 #{trackDetails.dateString.replace(/:00 GMT.*/, '')} - #{trackDetails.type}
         .row
             .col-md-3
                 p 
                     span.font-weight-bold Total Distance: 
-                    | #{totalDistance}
+                    | #{trackDetails.totalDistance}
             .col-md-3
                 p 
                     span.font-weight-bold Max Speed: 
-                    | #{maxSpeed} MPH
+                    | #{trackDetails.maxSpeed} MPH
             .col-md-3
                 p 
                     span.font-weight-bold Average Speed: 
-                    | #{avgSpeed}
+                    | #{trackDetails.avgSpeed}
             .col-md-3
                 p 
                     span.font-weight-bold Moving Average: 
-                    | #{movingAvg}
+                    | #{trackDetails.movingAvg}
         .row
             .col-md-3
                 p 
                     span.font-weight-bold Elapsed Time: 
-                    | #{elapsedTime}
+                    | #{trackDetails.elapsedTime}
             .col-md-3
                 p 
                     span.font-weight-bold Moving Time: 
-                    | #{movingTime}
+                    | #{trackDetails.movingTime}
             .col-md-3
                 p &nbsp;
             .col-md-3

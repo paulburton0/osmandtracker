@@ -3,6 +3,19 @@ block content
     .container
         script.
             $(document).ready(function(){
+                $('.typeChange').on('change', function(){
+                    var trackDetails = this.value.split('-');
+                    var track = trackDetails[0];
+                    var type = trackDetails[1];
+                    $.ajax({
+                        method: "POST",
+                        url: "changetype",
+                        data: { track: track, type: type }
+                    }).done(function(msg){
+                        alert("Data Saved: " + msg);
+                    });
+                });
+
                 $('#mergeTracks').click(function(){
                     var tracks = [];
                     var checkboxes = document.getElementsByClassName('trackSelect');
@@ -88,7 +101,6 @@ block content
             });
         div(id="alert" style='display:none').alert.alert-warning
             p You must select two tracks to merge.
-        h1 Tracks
         .row
             - if(Number(start) == 0){
                 .col-md-1
@@ -96,7 +108,7 @@ block content
                         span.glyphicon.glyphicon-arrow-left
             - } else {
                 .col-md-1
-                    - var prev = Number(start) - 10;
+                    - var prev = Number(start) - 10
                     a(role='button' href='http://soren625.duckdns.org:3001/?start=' + prev).btn.btn-primary
                         span.glyphicon.glyphicon-arrow-left
             - }
@@ -106,41 +118,53 @@ block content
                 a(href='' role='button' id='deleteTracks').btn.btn-primary Delete 
             - if(!lastPage){
                 .col-md-1
-                    - var next = Number(start) + 10;
+                    - var next = Number(start) + 10
                     a(role='button' href='http://soren625.duckdns.org:3001/?start=' + next).btn.btn-primary
                         span.glyphicon.glyphicon-arrow-right
             - } else {
                 .col-md-1
-                    - var next = Number(start) + 10;
+                    - var next = Number(start) + 10
                     a(role='button' href='http://soren625.duckdns.org:3001/?start=' + next).btn.btn-primary.disabled
                         span.glyphicon.glyphicon-arrow-right
             - }
         input(type='hidden').trackSelect
-        if tracks != ''
+        - if(tracksListing.length > 0){
             .row
                 .col-md-3
-                    p.font-weight-bold Track Start Time
-                .col-md-2
-                    p.font-weight-bold Track Distance
+                    p.font-weight-bold Start Time
+                .col-md-1
+                    p.font-weight-bold Type
+                .col-md-1
+                    p.font-weight-bold Distance
                 .col-md-3
-                    p.font-weight-bold Track Start Location
+                    p.font-weight-bold Start Location
                 .col-md-3
-                    p.font-weight-bold Track End Location
-            each track in tracks
-                - var dateAndTime = track.date.replace(/:00 GMT.*/, '');
+                    p.font-weight-bold End Location
+            each track in tracksListing
+                - var dateAndTime = track.date.replace(/:00 GMT.*/, '')
                 .row
                     .col-md-3
                         input(value= track.timestamp type='checkbox').trackSelect
                         |  
                         a(href='/' + track.timestamp) #{dateAndTime}
-                    .col-md-2
+                    .col-md-1
+                        select.typeChange
+                            - if(track.type == 'walking'){
+                                option(value=track.timestamp + '-walking', selected="selected") Walking
+                                option(value=track.timestamp + '-driving') Driving
+                            - }else{
+                                option(value=track.timestamp + '-walking') Walking
+                                option(value=track.timestamp + '-driving', selected="selected") Driving
+                            - }
+                    .col-md-1
                         p #{track.distance}
                     .col-md-3
                         p #{track.startAddress}
                     .col-md-3
                         p #{track.endAddress}
-        else
+        - }else{
             p No tracks to display.
+        - }
         .row
             - if(Number(start) == 0){
                 .col-md-1
@@ -148,7 +172,7 @@ block content
                         span.glyphicon.glyphicon-arrow-left
             - } else {
                 .col-md-1
-                    - var prev = Number(start) - 10;
+                    - var prev = Number(start) - 10
                     a(role='button' href='http://soren625.duckdns.org:3001/?start=' + prev).btn.btn-primary
                         span.glyphicon.glyphicon-arrow-left
             - }
@@ -158,12 +182,12 @@ block content
                 a(href='' role='button' id='deleteTracks').btn.btn-primary Delete 
             - if(!lastPage){
                 .col-md-1
-                    - var next = Number(start) + 10;
+                    - var next = Number(start) + 10
                     a(role='button' href='http://soren625.duckdns.org:3001/?start=' + next).btn.btn-primary
                         span.glyphicon.glyphicon-arrow-right
             - } else {
                 .col-md-1
-                    - var next = Number(start) + 10;
+                    - var next = Number(start) + 10
                     a(role='button' href='http://soren625.duckdns.org:3001/?start=' + next).btn.btn-primary.disabled
                         span.glyphicon.glyphicon-arrow-right
             - }
