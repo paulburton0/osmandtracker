@@ -26,7 +26,6 @@ exports.changeType = function(track, type, cb){
         }
         db.collection(track).find({'timestamp' : track}).toArray(function(err, trackDetails) {
             var trackDetails = trackDetails[0];
-            console.error(trackDetails);
             db.collection(track.toString()).updateOne({ 'timestamp' : track.toString() }, { 'lat' : trackDetails.lat, 'lon' : trackDetails.lon, 'timestamp' : trackDetails.timestamp, 'hdop' : trackDetails.hdop, 'altitude' : trackDetails.altitude, 'speed' : trackDetails.speed, 'type' : type }, function(err, res) {
                 db.close();
                 if (err){
@@ -141,6 +140,7 @@ exports.getTrackDetails = function(track, cb) {
                 return 0;
             });
             trackDetails.type = points[0].type;
+            points[0].segDist = 0;
             for(i=0; i<points.length; i++){
                 if(i < points.length - 1 ){
                     if(Number(points[i+1].speed) > 0){
@@ -152,6 +152,7 @@ exports.getTrackDetails = function(track, cb) {
                         {latitude: Number(points[i+1].lat), longitude: Number(points[i+1].lon)}
                         );
                     trackDetails.totalDistance += Number(segDist);
+                    points[i].segDist = trackDetails.totalDistance * 3.28084 / 5280;
                 }
                 if(i == points.length - 1){
                     trackDetails.latLon += '{lat: ' + Number(points[i].lat) + ', lng: ' + Number(points[i].lon) + '}]';

@@ -11,7 +11,7 @@ block content
         }
         #map{
             height: 50%;
-            width: 70%;
+            width: 90%;
             position: absolute;
             text-align: center;
             margin: auto;
@@ -38,29 +38,55 @@ block content
         }
     script.
         $(window).resize(function(){
-                drawChart();
+            drawChart($("input:radio[name ='chartType']:checked").val());
         });
+        $(document).ready(function(){
+            $('input[type=radio][name=chartType]').change(function(){
+                type = this.value;
+                drawChart(type);
+            });
+        }); 
         google.charts.load('current', {packages: ['corechart']});
         google.charts.setOnLoadCallback(drawChart);
-        function drawChart() {
-            var data = new google.visualization.arrayToDataTable(!{dataSet});
-            var formatter = new google.visualization.DateFormat({pattern: 'HH:mm'});
-            formatter.format(data, 0);
-            var options = {
-                title: 'Track Speed & Altitude',
-                colors: ['blue', 'green'],
-                hAxis: {title: 'Time',  titleTextStyle: {color: '#333'}, format: 'HH:mm'},
-                series: {
-                    0: {targetAxisIndex:0},
-                    1: {targetAxisIndex:1}
-                },
-                vAxes: {
-                    0: {title: 'MPH', minValue: 0},
-                    1: {title: 'Feet', minValue: 0}
-                },
-                legend: {position: 'in'},
-                chartArea:{left:0, top:0, width: "100%", height: "100%"}
+        function drawChart(type){
+            if(type == '' || type == null || type == 'time'){    
+                var data = new google.visualization.arrayToDataTable(!{timeDataSet});
+                var formatter = new google.visualization.DateFormat({pattern: 'HH:mm'});
+                formatter.format(data, 0);
+                var options = {
+                    title: 'Track Speed & Altitude by Time',
+                    colors: ['blue', 'green'],
+                    hAxis: {title: 'Time',  titleTextStyle: {color: '#333'}, format: 'HH:mm'},
+                    series: {
+                        0: {targetAxisIndex:0},
+                        1: {targetAxisIndex:1}
+                    },
+                    vAxes: {
+                        0: {title: 'MPH', minValue: 0},
+                        1: {title: 'Feet', minValue: 0}
+                    },
+                    legend: {position: 'in'},
+                    chartArea:{left:0, top:0, width: "100%", height: "100%"}
                 };
+            }
+            else if(type == 'distance'){
+                var data = new google.visualization.arrayToDataTable(!{distDataSet});
+                var options = {
+                    title: 'Track Speed & Altitude by Distance',
+                    colors: ['blue', 'green'],
+                    hAxis: {title: 'Distance',  titleTextStyle: {color: '#333'}},
+                    series: {
+                        0: {targetAxisIndex:0},
+                        1: {targetAxisIndex:1}
+                    },
+                    vAxes: {
+                        0: {title: 'MPH', minValue: 0},
+                        1: {title: 'Feet', minValue: 0}
+                    },
+                    legend: {position: 'in'},
+                    chartArea:{left:0, top:0, width: "100%", height: "100%"}
+                };
+            }
             var trackChart = new google.visualization.AreaChart(document.getElementById('trackChart'));
             trackChart.draw(data, options);
         }
@@ -108,10 +134,14 @@ block content
             trackPath.setMap(map);
         }
 
-    .container
+    .container-fluid
         a(href="http://soren625.duckdns.org:3001" role='button').btn.btn-primary 
             <span class="glyphicon glyphicon-arrow-left"></span> <span>Tracks</span>
         h2 #{trackDetails.dateString.replace(/:00 GMT.*/, '')} - #{trackDetails.type}
+        input(type="radio", name="chartType", value="time" checked="checked")
+        span Time &nbsp;
+        input(type="radio", name="chartType", value="distance")
+        span Distance &nbsp;
         .row
             .col-md-3
                 p 

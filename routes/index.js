@@ -139,7 +139,8 @@ router.get(/\/[0-9]+/, function(req, res, next) {
         var hour = trackDate.getHours();
         var minute = trackDate.getMinutes();
         trackDetails.dateString = new Date(year, month, day, hour, minute).toString();
-        var dataSet = [[{type: 'date', label: 'Time'}, {type: 'number', label: 'Speed'}, {type: 'number', label: 'Elevation'}]];
+        var timeDataSet = [[{type: 'date', label: 'Time'}, {type: 'number', label: 'Speed'}, {type: 'number', label: 'Elevation'}]];
+        var distDataSet = [[{type: 'number', label: 'Distance'}, {type: 'number', label: 'Speed'}, {type: 'number', label: 'Elevation'}]];
         for(x=0; x<trackDetails.points.length; x++){
             var date = new Date(Number(trackDetails.points[x].timestamp));
             var year = date.getFullYear();
@@ -149,10 +150,12 @@ router.get(/\/[0-9]+/, function(req, res, next) {
             var minutes = date.getMinutes();
             var seconds = date.getSeconds();
             var pointDate = new Date(year, month, day, hours, minutes, seconds);
-            var row = ["Date("+year+", "+month+", "+day+", "+hours+", "+minutes+", "+seconds+")", Number(trackDetails.points[x].speed), Number(trackDetails.points[x].altitude)];
-            dataSet.push(row);
+            var timeRow = ["Date("+year+", "+month+", "+day+", "+hours+", "+minutes+", "+seconds+")", Number(trackDetails.points[x].speed), Number(trackDetails.points[x].altitude)];
+            var distRow = [Number(trackDetails.points[x].segDist), Number(trackDetails.points[x].speed), Number(trackDetails.points[x].altitude)];
+            timeDataSet.push(timeRow);
+            distDataSet.push(distRow);
         }
-        res.render('track', {trackDetails, dataSet: JSON.stringify(dataSet), mapApiKey});
+        res.render('track', {trackDetails, timeDataSet: JSON.stringify(timeDataSet), distDataSet: JSON.stringify(distDataSet), mapApiKey});
     });        
 });
 
