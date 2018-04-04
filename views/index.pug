@@ -1,5 +1,6 @@
 extends layout
 block content
+<<<<<<< HEAD
     script.
         $(document).ready(function(){
             $('.typeChange').on('change', function(){ 
@@ -14,6 +15,23 @@ block content
                         buttons: {
                             'Ok': function(){
                                 $(this).dialog('close');
+=======
+        script.
+            $(document).ready(function(){
+                $('.typeChange').on('change', function(){ 
+                    var tsAndType = this.value.split('-');
+                    var track = tsAndType[0];
+                    var type = tsAndType[1];
+                    if(type == '???'){
+                        $("<div>You must select a valid type.</div>").dialog({
+                            title: 'Error',
+                            resizable: false,
+                            modal: true,
+                            buttons: {
+                                'Ok': function(){
+                                    $(this).dialog('close');
+                                }
+>>>>>>> 82a9ee6e7f87183261fdeaea13f117ba6107938a
                             }
                         }
                     });
@@ -117,7 +135,10 @@ block content
                     return false;
                 }
             });
+<<<<<<< HEAD
         });
+=======
+>>>>>>> 82a9ee6e7f87183261fdeaea13f117ba6107938a
     body
         .container-fluid
             div(id="alert" style='display:none').alert.alert-warning
