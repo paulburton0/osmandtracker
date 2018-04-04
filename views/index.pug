@@ -1,69 +1,55 @@
 extends layout
 block content
-    .container-fluid
-        script.
-            $(document).ready(function(){
-                $('.typeChange').on('change', function(){ 
-                    var tsAndType = this.value.split('-');
-                    var track = tsAndType[0];
-                    var type = tsAndType[1];
-                    if(type == '???'){
-                        $("<div>You must select a valid type.</div>").dialog({
-                            title: 'Error',
-                            resizable: false,
-                            modal: true,
-                            buttons: {
-                                'Ok': function(){
-                                    $(this).dialog('close');
-                                }
+    script.
+        $(document).ready(function(){
+            $('.typeChange').on('change', function(){ 
+                var tsAndType = this.value.split('-');
+                var track = tsAndType[0];
+                var type = tsAndType[1];
+                if(type == '???'){
+                    $("<div>You must select a valid type.</div>").dialog({
+                        title: 'Error',
+                        resizable: false,
+                        modal: true,
+                        buttons: {
+                            'Ok': function(){
+                                $(this).dialog('close');
                             }
-                        });
-                        return false;
-                    }
-                    $.ajax({
-                        method: "POST",
-                        url: "changetype",
-                        data: { track: track, type: type }
-                    }).done(function(msg){
-                        if(msg == 'OK'){
-                            $('#'+track).effect("highlight", {color: '#65FB67'}, 1000);
-                            $('#'+track).effect("highlight", {color: 'white'}, 1000);
-                        } else if(msg == 'Error'){
-                            $('#'+track).effect("highlight", {color: '#FF6E6C'}, 1000);
-                            $('#'+track).effect("highlight", {color: 'white'}, 1000);
                         }
-                        return;
                     });
+                    return false;
+                }
+                $.ajax({
+                    method: "POST",
+                    url: "changetype",
+                    data: { track: track, type: type }
+                }).done(function(msg){
+                    if(msg == 'OK'){
+                        $('#'+track).effect("highlight", {color: '#65FB67'}, 1000);
+                        $('#'+track).effect("highlight", {color: 'white'}, 1000);
+                    } else if(msg == 'Error'){
+                        $('#'+track).effect("highlight", {color: '#FF6E6C'}, 1000);
+                        $('#'+track).effect("highlight", {color: 'white'}, 1000);
+                    }
+                    return;
                 });
+            });
 
-                $('#mergeTracks').click(function(){
-                    var tracks = [];
-                    var checkboxes = document.getElementsByClassName('trackSelect');
-                    var link = '/merge?';
-                    var checked = 0;
-                    if(checkboxes){
-                        for (var i = checkboxes.length - 1; i > 0 ; i--){
-                            if (checkboxes[i].type == 'checkbox' && checkboxes[i].checked){
-                                link += 'tracks=' + checkboxes[i].value + '&';
-                                checked++;
-                            }
+            $('#mergeTracks').click(function(){
+                var tracks = [];
+                var checkboxes = document.getElementsByClassName('trackSelect');
+                var link = '/merge?';
+                var checked = 0;
+                if(checkboxes){
+                    for (var i = checkboxes.length - 1; i > 0 ; i--){
+                        if (checkboxes[i].type == 'checkbox' && checkboxes[i].checked){
+                            link += 'tracks=' + checkboxes[i].value + '&';
+                            checked++;
                         }
-                        if(checked == 2){
-                            $(this).attr('href', link);
-                        }else{
-                            $("<div>You must select two tracks to merge.</div>").dialog({
-                                title: 'Error',
-                                resizable: false,
-                                modal: true,
-                                buttons: {
-                                    'Ok': function(){
-                                        $(this).dialog('close');
-                                    }
-                                }
-                            });
-                            return false;
-                        }
-                    } else {
+                    }
+                    if(checked == 2){
+                        $(this).attr('href', link);
+                    }else{
                         $("<div>You must select two tracks to merge.</div>").dialog({
                             title: 'Error',
                             resizable: false,
@@ -76,35 +62,35 @@ block content
                         });
                         return false;
                     }
-                });
-                $('#deleteTracks').click(function(){
-                    var tracks = [];
-                    var checkboxes = document.getElementsByClassName('trackSelect');
-                    var link = '/delete?';
-                    var checked = 0;
-                    if(checkboxes){
-                        for (var i = checkboxes.length - 1; i > 0 ; i--){
-                            if (checkboxes[i].type == 'checkbox' && checkboxes[i].checked){
-                                link += 'tracks=' + checkboxes[i].value + '&';
-                                checked++;
+                } else {
+                    $("<div>You must select two tracks to merge.</div>").dialog({
+                        title: 'Error',
+                        resizable: false,
+                        modal: true,
+                        buttons: {
+                            'Ok': function(){
+                                $(this).dialog('close');
                             }
                         }
-                        if(checked){
-                            $(this).attr('href', link);
-                        } else{
-                            $("<div>You must select at least one track to delete.</div>").dialog({
-                                title: 'Error',
-                                resizable: false,
-                                modal: true,
-                                buttons: {
-                                    'Ok': function(){
-                                        $(this).dialog('close');
-                                    }
-                                }
-                            });
-                            return false;
+                    });
+                    return false;
+                }
+            });
+            $('#deleteTracks').click(function(){
+                var tracks = [];
+                var checkboxes = document.getElementsByClassName('trackSelect');
+                var link = '/delete?';
+                var checked = 0;
+                if(checkboxes){
+                    for (var i = checkboxes.length - 1; i > 0 ; i--){
+                        if (checkboxes[i].type == 'checkbox' && checkboxes[i].checked){
+                            link += 'tracks=' + checkboxes[i].value + '&';
+                            checked++;
                         }
-                    } else {
+                    }
+                    if(checked){
+                        $(this).attr('href', link);
+                    } else{
                         $("<div>You must select at least one track to delete.</div>").dialog({
                             title: 'Error',
                             resizable: false,
@@ -117,101 +103,116 @@ block content
                         });
                         return false;
                     }
-                });
+                } else {
+                    $("<div>You must select at least one track to delete.</div>").dialog({
+                        title: 'Error',
+                        resizable: false,
+                        modal: true,
+                        buttons: {
+                            'Ok': function(){
+                                $(this).dialog('close');
+                            }
+                        }
+                    });
+                    return false;
+                }
             });
-        div(id="alert" style='display:none').alert.alert-warning
-            p You must select two tracks to merge.
-        .row
-            - if(Number(start) == 0){
-                .col-md-1
-                    a(role='button' href='http://soren625.duckdns.org:3001/?start=' + prev).btn.btn-primary.disabled
-                        span.glyphicon.glyphicon-arrow-left
-            - } else {
-                .col-md-1
-                    - var prev = Number(start) - 10
-                    a(role='button' href='http://soren625.duckdns.org:3001/?start=' + prev).btn.btn-primary
-                        span.glyphicon.glyphicon-arrow-left
-            - }
-            .col-md-1
-                a(href='' role='button' id='mergeTracks').btn.btn-primary Merge
-            .col-md-1
-                a(href='' role='button' id='deleteTracks').btn.btn-primary Delete 
-            - if(!lastPage){
-                .col-md-1
-                    - var next = Number(start) + 10
-                    a(role='button' href='http://soren625.duckdns.org:3001/?start=' + next).btn.btn-primary
-                        span.glyphicon.glyphicon-arrow-right
-            - } else {
-                .col-md-1
-                    - var next = Number(start) + 10
-                    a(role='button' href='http://soren625.duckdns.org:3001/?start=' + next).btn.btn-primary.disabled
-                        span.glyphicon.glyphicon-arrow-right
-            - }
-        input(type='hidden').trackSelect
-        - if(tracksListing.length > 0){
+        });
+    body
+        .container-fluid
+            div(id="alert" style='display:none').alert.alert-warning
+                p You must select two tracks to merge.
             .row
-                .col-md-3
-                    p.font-weight-bold Start Time
-                .col-md-1
-                    p.font-weight-bold Type
-                .col-md-2
-                    p.font-weight-bold Distance
-                .col-md-3
-                    p.font-weight-bold Start Location
-                .col-md-3
-                    p.font-weight-bold End Location
-            each track in tracksListing
-                - var dateAndTime = track.date.replace(/:00 GMT.*/, '')
-                .row(id=track.timestamp)
-                    .col-md-3
-                        input(value= track.timestamp type='checkbox').trackSelect
-                        |  
-                        a(href='/' + track.timestamp) #{dateAndTime}
+                - if(Number(start) == 0){
                     .col-md-1
-                        select.typeChange
-                            - if(track.type == 'walking'){
-                                option(value=track.timestamp + '-walking', selected="selected") Walking
-                                option(value=track.timestamp + '-driving') Driving
-                            - }else if(track.type == 'driving'){
-                                option(value=track.timestamp + '-walking') Walking
-                                option(value=track.timestamp + '-driving', selected="selected") Driving
-                            - }else{
-                                option(value=track.timestamp + '-walking') Walking
-                                option(value=track.timestamp + '-driving') Driving
-                                option(value=track.timestamp + '-???', selected="selected") ??? 
-                            - }
+                        a(role='button' href='http://soren625.duckdns.org:3001/?start=' + prev).btn.btn-primary.disabled
+                            span.glyphicon.glyphicon-arrow-left
+                - } else {
+                    .col-md-1
+                        - var prev = Number(start) - 10
+                        a(role='button' href='http://soren625.duckdns.org:3001/?start=' + prev).btn.btn-primary
+                            span.glyphicon.glyphicon-arrow-left
+                - }
+                .col-md-1
+                    a(href='' role='button' id='mergeTracks').btn.btn-primary Merge
+                .col-md-1
+                    a(href='' role='button' id='deleteTracks').btn.btn-primary Delete 
+                - if(!lastPage){
+                    .col-md-1
+                        - var next = Number(start) + 10
+                        a(role='button' href='http://soren625.duckdns.org:3001/?start=' + next).btn.btn-primary
+                            span.glyphicon.glyphicon-arrow-right
+                - } else {
+                    .col-md-1
+                        - var next = Number(start) + 10
+                        a(role='button' href='http://soren625.duckdns.org:3001/?start=' + next).btn.btn-primary.disabled
+                            span.glyphicon.glyphicon-arrow-right
+                - }
+            input(type='hidden').trackSelect
+            - if(tracksListing.length > 0){
+                .row
+                    .col-md-3
+                        p.font-weight-bold Start Time
+                    .col-md-1
+                        p.font-weight-bold Type
                     .col-md-2
-                        p #{track.distance}
+                        p.font-weight-bold Distance
                     .col-md-3
-                        p #{track.startAddress}
+                        p.font-weight-bold Start Location
                     .col-md-3
-                        p #{track.endAddress}
-        - }else{
-            p No tracks to display.
-        - }
-        .row
-            - if(Number(start) == 0){
-                .col-md-1
-                    a(role='button' href='http://soren625.duckdns.org:3001/?start=' + prev).btn.btn-primary.disabled
-                        span.glyphicon.glyphicon-arrow-left
-            - } else {
-                .col-md-1
-                    - var prev = Number(start) - 10
-                    a(role='button' href='http://soren625.duckdns.org:3001/?start=' + prev).btn.btn-primary
-                        span.glyphicon.glyphicon-arrow-left
+                        p.font-weight-bold End Location
+                each track in tracksListing
+                    - var dateAndTime = track.date.replace(/:00 GMT.*/, '')
+                    .row(id=track.timestamp)
+                        .col-md-3
+                            input(value= track.timestamp type='checkbox').trackSelect
+                            |  
+                            a(href='/' + track.timestamp) #{dateAndTime}
+                        .col-md-1
+                            select.typeChange
+                                - if(track.type == 'walking'){
+                                    option(value=track.timestamp + '-walking', selected="selected") Walking
+                                    option(value=track.timestamp + '-driving') Driving
+                                - }else if(track.type == 'driving'){
+                                    option(value=track.timestamp + '-walking') Walking
+                                    option(value=track.timestamp + '-driving', selected="selected") Driving
+                                - }else{
+                                    option(value=track.timestamp + '-walking') Walking
+                                    option(value=track.timestamp + '-driving') Driving
+                                    option(value=track.timestamp + '-???', selected="selected") ??? 
+                                - }
+                        .col-md-2
+                            p #{track.distance}
+                        .col-md-3
+                            p #{track.startAddress}
+                        .col-md-3
+                            p #{track.endAddress}
+            - }else{
+                p No tracks to display.
             - }
-            .col-md-1
-                a(href='' role='button' id='mergeTracks').btn.btn-primary Merge
-            .col-md-1
-                a(href='' role='button' id='deleteTracks').btn.btn-primary Delete 
-            - if(!lastPage){
+            .row
+                - if(Number(start) == 0){
+                    .col-md-1
+                        a(role='button' href='http://soren625.duckdns.org:3001/?start=' + prev).btn.btn-primary.disabled
+                            span.glyphicon.glyphicon-arrow-left
+                - } else {
+                    .col-md-1
+                        - var prev = Number(start) - 10
+                        a(role='button' href='http://soren625.duckdns.org:3001/?start=' + prev).btn.btn-primary
+                            span.glyphicon.glyphicon-arrow-left
+                - }
                 .col-md-1
-                    - var next = Number(start) + 10
-                    a(role='button' href='http://soren625.duckdns.org:3001/?start=' + next).btn.btn-primary
-                        span.glyphicon.glyphicon-arrow-right
-            - } else {
+                    a(href='' role='button' id='mergeTracks').btn.btn-primary Merge
                 .col-md-1
-                    - var next = Number(start) + 10
-                    a(role='button' href='http://soren625.duckdns.org:3001/?start=' + next).btn.btn-primary.disabled
-                        span.glyphicon.glyphicon-arrow-right
-            - }
+                    a(href='' role='button' id='deleteTracks').btn.btn-primary Delete 
+                - if(!lastPage){
+                    .col-md-1
+                        - var next = Number(start) + 10
+                        a(role='button' href='http://soren625.duckdns.org:3001/?start=' + next).btn.btn-primary
+                            span.glyphicon.glyphicon-arrow-right
+                - } else {
+                    .col-md-1
+                        - var next = Number(start) + 10
+                        a(role='button' href='http://soren625.duckdns.org:3001/?start=' + next).btn.btn-primary.disabled
+                            span.glyphicon.glyphicon-arrow-right
+                - }
