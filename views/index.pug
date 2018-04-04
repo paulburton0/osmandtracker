@@ -16,23 +16,23 @@ block content
                                 $(this).dialog('close');
                             }
                         }
-                    }
-                });
-                return false;
-            }
-            $.ajax({
-                method: "POST",
-                url: "changetype",
-                data: { track: track, type: type }
-            }).done(function(msg){
-                if(msg == 'OK'){
-                    $('#'+track).effect("highlight", {color: '#65FB67'}, 1000);
-                    $('#'+track).effect("highlight", {color: 'white'}, 1000);
-                } else if(msg == 'Error'){
-                    $('#'+track).effect("highlight", {color: '#FF6E6C'}, 1000);
-                    $('#'+track).effect("highlight", {color: 'white'}, 1000);
+                    });
+                    return false;
                 }
-                return;
+                $.ajax({
+                    method: "POST",
+                    url: "changetype",
+                    data: { track: track, type: type }
+                }).done(function(msg){
+                    if(msg == 'OK'){
+                        $('#'+track).effect("highlight", {color: '#65FB67'}, 1000);
+                        $('#'+track).effect("highlight", {color: 'white'}, 1000);
+                    } else if(msg == 'Error'){
+                        $('#'+track).effect("highlight", {color: '#FF6E6C'}, 1000);
+                        $('#'+track).effect("highlight", {color: 'white'}, 1000);
+                    }
+                    return;
+                });
             });
         });
 

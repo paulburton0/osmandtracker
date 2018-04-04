@@ -24,13 +24,19 @@ block content
             width: 80%;
             height: 100%;
         }
-        chartWrapper{
+        #mapWrapper{
+            height: 100%;
+            width: 100%;
+            margin: auto;
+            text-align: center;
+        }
+        #chartWrapper{
             height: 100%;
             width: 100%;
             margin:auto;
             text-align:center;
         }
-        trackChart{
+        #trackChart{
             height: 100%;
             width: 100%;
             margin:auto;
@@ -55,6 +61,11 @@ block content
                 markers.push(marker);
             }
         }); 
+        $(function(){
+            $("input").checkboxradio({
+                icon: false
+            });
+        });
         google.charts.load('current', {packages: ['corechart']});
         google.charts.setOnLoadCallback(drawChart);
         function drawChart(type){
@@ -98,7 +109,7 @@ block content
             }
             var trackChart = new google.visualization.AreaChart(document.getElementById('trackChart'));
             trackChart.draw(data, options);
-
+            
             google.visualization.events.addListener(trackChart, 'onmouseover', function(e) {
                 showMarker(data, e.row);
             });
@@ -133,7 +144,6 @@ block content
 
             map.setCenter(bounds.getCenter());
             map.fitBounds(bounds);
-            //map.setZoom(map.getZoom()-1);
 
             var startMarker = new google.maps.Marker({
                     position: #{trackDetails.trackStart},
@@ -159,6 +169,10 @@ block content
                 strokeWeight: 2
             });
 
+            /*google.maps.event.addListener(trackPath, 'click', function(e) {*/
+                /*alert('you clicked ' + e.latLng);*/
+             /*});*/
+
             trackPath.setMap(map);
         }
 
@@ -167,10 +181,10 @@ block content
             a(href="http://soren625.duckdns.org:3001" role='button').btn.btn-primary 
                 <span class="glyphicon glyphicon-arrow-left"></span> <span>Tracks</span>
             h2 #{trackDetails.dateString.replace(/:00 GMT.*/, '')} - #{trackDetails.type}
-            input(type="radio", name="chartType", value="time" checked="checked")
-            span Time &nbsp;
-            input(type="radio", name="chartType", value="distance")
-            span Distance &nbsp;
+            label(for='radio-1') Time
+            input(id="radio-1", type="radio", name="chartType", value="time" checked="checked")
+            label(for='radio-2') Distance
+            input(id="radio-2", type="radio", name="chartType", value="distance")
             .row
                 .col-md-3
                     p 
@@ -203,5 +217,6 @@ block content
                     p &nbsp;
             div(id="chartWrapper")
                 div(id="trackChart")
-            div(id="map")
+            div(id="mapWrapper")
+                div(id="map")
     script(src!='https://maps.googleapis.com/maps/api/js?key=' + mapApiKey +'&callback=initMap')
