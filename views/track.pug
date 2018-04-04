@@ -181,6 +181,7 @@ block content
             a(href="http://soren625.duckdns.org:3001" role='button').btn.btn-primary 
                 <span class="glyphicon glyphicon-arrow-left"></span> <span>Tracks</span>
             h2 #{trackDetails.dateString.replace(/:00 GMT.*/, '')} - #{trackDetails.type}
+            span.font-weight-bold Plot speed and altitude by: &nbsp;
             label(for='radio-1') Time
             input(id="radio-1", type="radio", name="chartType", value="time" checked="checked")
             label(for='radio-2') Distance
