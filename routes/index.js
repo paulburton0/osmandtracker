@@ -84,6 +84,15 @@ router.post('/changetype', function(req, res, next){
     });
 });
 
+router.get('/split', function(req, res, next){
+    var splitTrack = req.query.track;
+    var splitIndex = req.query.index;
+    track.split(splitTrack, splitIndex, function(err){
+        if(err) console.error(err);
+        res.redirect('/');
+    });
+});
+
 router.get('/merge', function(req, res, next){
     track.mergeTracks(req.query.tracks, function(err, tracks){
         if(err) console.error(err);
@@ -91,12 +100,13 @@ router.get('/merge', function(req, res, next){
     });
 });
 
-router.get('/delete', function(req, res, next){
-   track.deleteTrack(req.query.tracks, function(err){
-      if(err) console.error(err); 
-      res.redirect('/');
-      return;
-   });
+router.post('/delete', function(req, res, next){
+    var tracks = JSON.parse(req.body.tracks);
+    track.deleteTrack(tracks, function(err, tracks){
+        if(err) console.error(err); 
+        tracks = JSON.stringify(tracks);
+        res.send(tracks);
+    });
 });
 
 router.get('/track', function(req, res, next) {

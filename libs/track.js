@@ -1,21 +1,43 @@
+var MongoClient = require('mongodb').MongoClient, test = require('assert');
 var geo = require('geolib');
-var MongoClient = require('mongodb').MongoClient;
 const db = 'tracks';
 const url = 'mongodb://localhost:27017/' + db;
 var exports = module.exports = {};
 
 exports.deleteTrack = function(tracks, cb){
-    tracks = typeof(tracks) === 'string' ? [tracks] : tracks;
 	MongoClient.connect(url, function(err, db) {
+        if(err) return cb(err);
         for(var i = 0; i < tracks.length; i++){
-            db.dropCollection(tracks[i].toString(), function(err, result){
-                if(err) return cb(err);
-                if(i == tracks.length){
-                    return cb(null);    
-                }
-            });
+            db.collection(tracks[i].toString()).drop();
         }
+        return cb(null, tracks);
     });
+}
+
+exports.split = function(splitTrack, splitIndex, cb){
+    var iterator = 0;
+	MongoClient.connect(url, function(err, db) {
+		if (err){
+            db.close();
+            return cb(err);
+        }
+        var trackToSplit = db.collection(splitTrack);
+        trackToSplit.find().toArray(function(err, track) {
+            if (err){
+                db.close();
+                return cb(err);
+            }
+            var oldTrack = track.slice(0, splitIndex);
+            var newTrack = track.slice(splitIndex);
+            db.collection(splitTrack).drop();
+            db.collection(oldTrack[0].timestamp).insertMany(oldTrack).then(function(r){
+                db.collection(newTrack[0].timestamp).insertMany(newTrack).then(function(r){
+                    db.close();
+                    return cb(null);
+                });
+            });
+        });
+	});
 }
 
 exports.changeType = function(track, type, cb){

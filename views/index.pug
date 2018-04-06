@@ -34,23 +34,35 @@ block content
                     return;
                 });
             });
-        });
 
-        $('#mergeTracks').click(function(){
-            var tracks = [];
-            var checkboxes = document.getElementsByClassName('trackSelect');
-            var link = '/merge?';
-            var checked = 0;
-            if(checkboxes){
-                for (var i = checkboxes.length - 1; i > 0 ; i--){
-                    if (checkboxes[i].type == 'checkbox' && checkboxes[i].checked){
-                        link += 'tracks=' + checkboxes[i].value + '&';
-                        checked++;
+            $('#mergeTracks').click(function(){
+                var tracks = [];
+                var checkboxes = document.getElementsByClassName('trackSelect');
+                var link = '/merge?';
+                var checked = 0;
+                if(checkboxes){
+                    for (var i = checkboxes.length - 1; i > 0 ; i--){
+                        if (checkboxes[i].type == 'checkbox' && checkboxes[i].checked){
+                            link += 'tracks=' + checkboxes[i].value + '&';
+                            checked++;
+                        }
                     }
-                }
-                if(checked == 2){
-                    $(this).attr('href', link);
-                }else{
+                    if(checked == 2){
+                        $(this).attr('href', link);
+                    }else{
+                        $("<div>You must select two tracks to merge.</div>").dialog({
+                            title: 'Error',
+                            resizable: false,
+                            modal: true,
+                            buttons: {
+                                'Ok': function(){
+                                    $(this).dialog('close');
+                                }
+                            }
+                        });
+                        return false;
+                    }
+                } else {
                     $("<div>You must select two tracks to merge.</div>").dialog({
                         title: 'Error',
                         resizable: false,
@@ -63,35 +75,26 @@ block content
                     });
                     return false;
                 }
-            } else {
-                $("<div>You must select two tracks to merge.</div>").dialog({
-                    title: 'Error',
-                    resizable: false,
-                    modal: true,
-                    buttons: {
-                        'Ok': function(){
-                            $(this).dialog('close');
+            });
+            $('#deleteTracks').click(function(){
+                var checkboxes = $("input:checkbox:checked").map(function(){
+                                      return $(this).val();
+                                      }).get();
+                console.log(checkboxes);
+                if(checkboxes.length > 0){
+                    var ajaxData = JSON.stringify(checkboxes);
+                    $.ajax({
+                       method: "POST",
+                       url: "delete",
+                       data: {tracks : ajaxData}
+                    })
+                    .done(function(tracks){
+                        var deletedTracks = JSON.parse(tracks);
+                        for(i=0;i<deletedTracks.length;i++){
+                            $('#'+deletedTracks[i]).remove();
                         }
-                    }
-                });
-                return false;
-            }
-        });
-        $('#deleteTracks').click(function(){
-            var tracks = [];
-            var checkboxes = document.getElementsByClassName('trackSelect');
-            var link = '/delete?';
-            var checked = 0;
-            if(checkboxes){
-                for (var i = checkboxes.length - 1; i > 0 ; i--){
-                    if (checkboxes[i].type == 'checkbox' && checkboxes[i].checked){
-                        link += 'tracks=' + checkboxes[i].value + '&';
-                        checked++;
-                    }
-                }
-                if(checked){
-                    $(this).attr('href', link);
-                } else{
+                    });
+                }else{
                     $("<div>You must select at least one track to delete.</div>").dialog({
                         title: 'Error',
                         resizable: false,
@@ -104,19 +107,7 @@ block content
                     });
                     return false;
                 }
-            } else {
-                $("<div>You must select at least one track to delete.</div>").dialog({
-                    title: 'Error',
-                    resizable: false,
-                    modal: true,
-                    buttons: {
-                        'Ok': function(){
-                            $(this).dialog('close');
-                        }
-                    }
-                });
-                return false;
-            }
+            });
         });
     body
         .container-fluid
@@ -136,7 +127,7 @@ block content
                 .col-md-1
                     a(href='' role='button' id='mergeTracks').btn.btn-primary Merge
                 .col-md-1
-                    a(href='' role='button' id='deleteTracks').btn.btn-primary Delete 
+                    button(id='deleteTracks').btn.btn-primary Delete 
                 - if(!lastPage){
                     .col-md-1
                         - var next = Number(start) + 10
@@ -148,7 +139,6 @@ block content
                         a(role='button' href='http://soren625.duckdns.org:3001/?start=' + next).btn.btn-primary.disabled
                             span.glyphicon.glyphicon-arrow-right
                 - }
-            input(type='hidden').trackSelect
             - if(tracksListing.length > 0){
                 .row
                     .col-md-3
@@ -165,7 +155,7 @@ block content
                     - var dateAndTime = track.date.replace(/:00 GMT.*/, '')
                     .row(id=track.timestamp)
                         .col-md-3
-                            input(value= track.timestamp type='checkbox').trackSelect
+                            input(value=track.timestamp type='checkbox').trackSelect
                             |  
                             a(href='/' + track.timestamp) #{dateAndTime}
                         .col-md-1
@@ -173,12 +163,19 @@ block content
                                 - if(track.type == 'walking'){
                                     option(value=track.timestamp + '-walking', selected="selected") Walking
                                     option(value=track.timestamp + '-driving') Driving
+                                    option(value=track.timestamp + '-boating') Boating 
                                 - }else if(track.type == 'driving'){
                                     option(value=track.timestamp + '-walking') Walking
                                     option(value=track.timestamp + '-driving', selected="selected") Driving
+                                    option(value=track.timestamp + '-boating') Boating
+                                - }else if(track.type == 'boating'){
+                                    option(value=track.timestamp + '-walking') Walking
+                                    option(value=track.timestamp + '-driving') Driving
+                                    option(value=track.timestamp + '-boating', selected="selected") Boating
                                 - }else{
                                     option(value=track.timestamp + '-walking') Walking
                                     option(value=track.timestamp + '-driving') Driving
+                                    option(value=track.timestamp + '-boating') Boating
                                     option(value=track.timestamp + '-???', selected="selected") ??? 
                                 - }
                         .col-md-2

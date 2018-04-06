@@ -42,6 +42,9 @@ block content
             margin:auto;
             text-align:center;
         }
+        #splitButton{
+            float: right;
+        }
     script.
         $(window).resize(function(){
             drawChart($("input:radio[name ='chartType']:checked").val());
@@ -51,7 +54,7 @@ block content
                 type = this.value;
                 drawChart(type);
             });
-            var markersPosition = !{JSON.stringify(trackDetails.points)};
+            markersPosition = !{JSON.stringify(trackDetails.points)};
             markers = new Array();
             for(i=0;i<markersPosition.length; i++){
                 var position = new google.maps.LatLng(markersPosition[i].lat, markersPosition[i].lon);
@@ -66,11 +69,12 @@ block content
                 icon: false
             });
         });
+        var splitIndex;
         google.charts.load('current', {packages: ['corechart']});
         google.charts.setOnLoadCallback(drawChart);
         function drawChart(type){
             if(type == '' || type == null || type == 'time'){    
-                var data = new google.visualization.arrayToDataTable(!{timeDataSet});
+                data = new google.visualization.arrayToDataTable(!{timeDataSet});
                 var formatter = new google.visualization.DateFormat({pattern: 'HH:mm'});
                 formatter.format(data, 0);
                 var options = {
@@ -90,7 +94,7 @@ block content
                 };
             }
             else if(type == 'distance'){
-                var data = new google.visualization.arrayToDataTable(!{distDataSet});
+                data = new google.visualization.arrayToDataTable(!{distDataSet});
                 var options = {
                     title: 'Track Speed & Altitude by Distance',
                     colors: ['blue', 'green'],
@@ -109,7 +113,14 @@ block content
             }
             var trackChart = new google.visualization.AreaChart(document.getElementById('trackChart'));
             trackChart.draw(data, options);
-            
+
+            google.visualization.events.addListener(trackChart, 'select', function() {
+                var selection = trackChart.getSelection();
+                splitTrack = #{trackDetails.trackName};
+                splitIndex = selection[0].row;
+                $('#splitButton').removeClass('disabled').attr('href', '/split?track=' + splitTrack + '&index=' + splitIndex);
+
+            });
             google.visualization.events.addListener(trackChart, 'onmouseover', function(e) {
                 showMarker(data, e.row);
             });
@@ -169,16 +180,16 @@ block content
                 strokeWeight: 2
             });
 
-            /*google.maps.event.addListener(trackPath, 'click', function(e) {*/
-                /*alert('you clicked ' + e.latLng);*/
-             /*});*/
+            google.maps.event.addListener(trackPath, 'click', function(e) {
+                alert('you clicked ' + e.latLng);
+             });
 
             trackPath.setMap(map);
         }
 
     body
         .container-fluid
-            a(href="http://soren625.duckdns.org:3001" role='button').btn.btn-primary 
+            a(href="/" role='button').btn.btn-primary 
                 <span class="glyphicon glyphicon-arrow-left"></span> <span>Tracks</span>
             h2 #{trackDetails.dateString.replace(/:00 GMT.*/, '')} - #{trackDetails.type}
             span.font-weight-bold Plot speed and altitude by: &nbsp;
@@ -186,6 +197,8 @@ block content
             input(id="radio-1", type="radio", name="chartType", value="time" checked="checked")
             label(for='radio-2') Distance
             input(id="radio-2", type="radio", name="chartType", value="distance")
+            a(href="/split" role='button' id="splitButton").btn.btn-primary.disabled
+                span Split
             .row
                 .col-md-3
                     p 
