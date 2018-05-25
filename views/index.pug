@@ -1,5 +1,9 @@
 extends layout
 block content
+    style.
+        .row, .col-md-1, .col-md-2, .col-md-3, .col-md-4{
+            height: 40px;    
+        }
     script.
         $(document).ready(function(){
             $('.typeChange').on('change', function(){ 
@@ -35,20 +39,28 @@ block content
                 });
             });
 
-            $('#mergeTracks').click(function(){
+            $('.mergeTracks').click(function(){
                 var tracks = [];
                 var checkboxes = document.getElementsByClassName('trackSelect');
-                var link = '/merge?';
                 var checked = 0;
                 if(checkboxes){
-                    for (var i = checkboxes.length - 1; i > 0 ; i--){
-                        if (checkboxes[i].type == 'checkbox' && checkboxes[i].checked){
-                            link += 'tracks=' + checkboxes[i].value + '&';
+                    for (var i=0; i<checkboxes.length; i++){
+                        if (checkboxes[i].checked){
+                            tracks.push(checkboxes[i].value);
                             checked++;
                         }
                     }
                     if(checked == 2){
-                        $(this).attr('href', link);
+                        var ajaxData = JSON.stringify(tracks);
+                        $.ajax({
+                            method: "POST",
+                            url: "merge",
+                            data: {tracks : ajaxData} 
+                        }).done(function(mergedTrack){
+                            if(mergedTrack){
+                                $('#'+mergedTrack).remove();
+                            }
+                        });
                     }else{
                         $("<div>You must select two tracks to merge.</div>").dialog({
                             title: 'Error',
@@ -76,11 +88,10 @@ block content
                     return false;
                 }
             });
-            $('#deleteTracks').click(function(){
+            $('.deleteTracks').click(function(){
                 var checkboxes = $("input:checkbox:checked").map(function(){
                                       return $(this).val();
                                       }).get();
-                console.log(checkboxes);
                 if(checkboxes.length > 0){
                     var ajaxData = JSON.stringify(checkboxes);
                     $.ajax({
@@ -115,50 +126,50 @@ block content
                 p You must select two tracks to merge.
             .row
                 - if(Number(start) == 0){
-                    .col-md-1
+                    .col-md-1.col-xs-12
                         a(role='button' href='http://soren625.duckdns.org:3001/?start=' + prev).btn.btn-primary.disabled
                             span.glyphicon.glyphicon-arrow-left
                 - } else {
-                    .col-md-1
+                    .col-md-1.col-xs-12
                         - var prev = Number(start) - 10
                         a(role='button' href='http://soren625.duckdns.org:3001/?start=' + prev).btn.btn-primary
                             span.glyphicon.glyphicon-arrow-left
                 - }
-                .col-md-1
-                    a(href='' role='button' id='mergeTracks').btn.btn-primary Merge
-                .col-md-1
-                    button(id='deleteTracks').btn.btn-primary Delete 
+                .col-md-1.col-xs-12
+                    button.mergeTracks.btn.btn-primary Merge
+                .col-md-1.col-xs-12
+                    button.deleteTracks.btn.btn-primary Delete 
                 - if(!lastPage){
-                    .col-md-1
+                    .col-md-1.col-xs-12
                         - var next = Number(start) + 10
                         a(role='button' href='http://soren625.duckdns.org:3001/?start=' + next).btn.btn-primary
                             span.glyphicon.glyphicon-arrow-right
                 - } else {
-                    .col-md-1
+                    .col-md-1.col-xs-12
                         - var next = Number(start) + 10
                         a(role='button' href='http://soren625.duckdns.org:3001/?start=' + next).btn.btn-primary.disabled
                             span.glyphicon.glyphicon-arrow-right
                 - }
             - if(tracksListing.length > 0){
                 .row
-                    .col-md-3
+                    .col-md-3.col-xs-12
                         p.font-weight-bold Start Time
-                    .col-md-1
+                    .col-md-1.col-xs-12
                         p.font-weight-bold Type
-                    .col-md-2
+                    .col-md-2.col-xs-12
                         p.font-weight-bold Distance
-                    .col-md-3
+                    .col-md-3.col-xs-12
                         p.font-weight-bold Start Location
-                    .col-md-3
+                    .col-md-3.col-xs-12
                         p.font-weight-bold End Location
                 each track in tracksListing
                     - var dateAndTime = track.date.replace(/:00 GMT.*/, '')
                     .row(id=track.timestamp)
-                        .col-md-3
+                        .col-md-3.col-xs-12
                             input(value=track.timestamp type='checkbox').trackSelect
                             |  
                             a(href='/' + track.timestamp) #{dateAndTime}
-                        .col-md-1
+                        .col-md-1.col-xs-12
                             select.typeChange
                                 - if(track.type == 'walking'){
                                     option(value=track.timestamp + '-walking', selected="selected") Walking
@@ -178,37 +189,37 @@ block content
                                     option(value=track.timestamp + '-boating') Boating
                                     option(value=track.timestamp + '-???', selected="selected") ??? 
                                 - }
-                        .col-md-2
+                        .col-md-2.col-xs-12
                             p #{track.distance}
-                        .col-md-3
+                        .col-md-3.col-xs-12
                             p #{track.startAddress}
-                        .col-md-3
+                        .col-md-3.col-xs-12
                             p #{track.endAddress}
             - }else{
                 p No tracks to display.
             - }
             .row
                 - if(Number(start) == 0){
-                    .col-md-1
+                    .col-md-1.col-xs-12
                         a(role='button' href='http://soren625.duckdns.org:3001/?start=' + prev).btn.btn-primary.disabled
                             span.glyphicon.glyphicon-arrow-left
                 - } else {
-                    .col-md-1
+                    .col-md-1.col-xs-12
                         - var prev = Number(start) - 10
                         a(role='button' href='http://soren625.duckdns.org:3001/?start=' + prev).btn.btn-primary
                             span.glyphicon.glyphicon-arrow-left
                 - }
-                .col-md-1
-                    a(href='' role='button' id='mergeTracks').btn.btn-primary Merge
-                .col-md-1
-                    a(href='' role='button' id='deleteTracks').btn.btn-primary Delete 
+                .col-md-1.col-xs-12
+                    button.mergeTracks.btn.btn-primary Merge
+                .col-md-1.col-xs-12
+                    button.deleteTracks.btn.btn-primary Delete 
                 - if(!lastPage){
-                    .col-md-1
+                    .col-md-1.col-xs-12
                         - var next = Number(start) + 10
                         a(role='button' href='http://soren625.duckdns.org:3001/?start=' + next).btn.btn-primary
                             span.glyphicon.glyphicon-arrow-right
                 - } else {
-                    .col-md-1
+                    .col-md-1.col-xs-12
                         - var next = Number(start) + 10
                         a(role='button' href='http://soren625.duckdns.org:3001/?start=' + next).btn.btn-primary.disabled
                             span.glyphicon.glyphicon-arrow-right

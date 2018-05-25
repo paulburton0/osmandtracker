@@ -93,10 +93,12 @@ router.get('/split', function(req, res, next){
     });
 });
 
-router.get('/merge', function(req, res, next){
-    track.mergeTracks(req.query.tracks, function(err, tracks){
+router.post('/merge', function(req, res, next){
+    var tracks = JSON.parse(req.body.tracks);
+    tracks.sort();
+    track.mergeTracks(tracks, function(err){
         if(err) console.error(err);
-        res.redirect('/');
+        res.send(tracks[1]);
     });
 });
 
