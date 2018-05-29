@@ -82,18 +82,19 @@ exports.getLastTrack = function(cb){
 		});
 	});
 }
-exports.getTracks = function(start, cb){
+exports.getTracks = function(start, number, cb){
     start = Number(start);
+    number = Number(number);
 	MongoClient.connect(url, function(err, db) {
 		db.listCollections().toArray(function(err, items) {
             var lastPage = false;
             var collectionNames = new Array();
             var end;
-            if(items.length - start <= 10){
+            if(items.length - start <= number){
                 end = items.length - 1; 
                 lastPage = true;
             }else{
-                end = start + 10;
+                end = start + number;
             }
             for(i=0; i<items.length; i++){
                 collectionNames.push(items[i].name);

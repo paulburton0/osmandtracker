@@ -11,7 +11,7 @@ block content
                 var track = tsAndType[0];
                 var type = tsAndType[1];
                 if(type == '???'){
-                    $("<div>You must select a valid type.</div>").dialog({
+                    $('<div>You must select a valid type.</div>').dialog({
                         title: 'Error',
                         resizable: false,
                         modal: true,
@@ -24,16 +24,16 @@ block content
                     return false;
                 }
                 $.ajax({
-                    method: "POST",
-                    url: "changetype",
+                    method: 'POST',
+                    url: 'changetype',
                     data: { track: track, type: type }
                 }).done(function(msg){
                     if(msg == 'OK'){
-                        $('#'+track).effect("highlight", {color: '#65FB67'}, 1000);
-                        $('#'+track).effect("highlight", {color: 'white'}, 1000);
+                        $('#'+track).effect('highlight', {color: '#65FB67'}, 1000);
+                        $('#'+track).effect('highlight', {color: 'white'}, 1000);
                     } else if(msg == 'Error'){
-                        $('#'+track).effect("highlight", {color: '#FF6E6C'}, 1000);
-                        $('#'+track).effect("highlight", {color: 'white'}, 1000);
+                        $('#'+track).effect('highlight', {color: '#FF6E6C'}, 1000);
+                        $('#'+track).effect('highlight', {color: 'white'}, 1000);
                     }
                     return;
                 });
@@ -53,16 +53,60 @@ block content
                     if(checked == 2){
                         var ajaxData = JSON.stringify(tracks);
                         $.ajax({
-                            method: "POST",
-                            url: "merge",
+                            method: 'POST',
+                            url: 'merge',
                             data: {tracks : ajaxData} 
                         }).done(function(mergedTrack){
+                            $(':checkbox:checked').each(function(){
+                                this.click();
+                            });
                             if(mergedTrack){
-                                $('#'+mergedTrack).remove();
+                                var trackId = tracks[0];
+                                var pageTracks = !{JSON.stringify(tracksListing)};
+                                var mergeIndex;
+                                for(i=0;i<pageTracks.length;i++){
+                                    if(pageTracks[i].timestamp === trackId){
+                                        mergeIndex = i;
+                                    }
+                                }
+                                $('#'+tracks[1]).remove();
+                                $.ajax({
+                                    method: 'POST',
+                                    url: 'gettracks',
+                                    data: {getStart :  Number(#{start})+Number(mergeIndex),
+                                           getNumber : 1}
+                                }).done(function(results){
+                                    var results = JSON.parse(results);
+                                    var start = results.start;
+                                    var lastPage = results.lastPage;
+                                    var tracksListing = results.tracksListing;
+                                    var dateAndTime = tracksListing[0].date.replace(/:00 GMT.*/, '')
+                                    $('#'+trackId).replaceWith( 
+                                        '<div class="row" id="'+tracksListing[0].timestamp+'"><div class="col-md-3 col-xs-12"><input value="'+tracksListing[0].timestamp+'" type="checkbox" class="trackSelect" /><a href="/'+tracksListing[0].timestamp+'">'+dateAndTime+'</a></div><div class="col-md-1 col-xs-12"><select class="typeChange"><option>Walking</option><option>Driving</option><option>Boating</option></select></div><div class="col-md-2 col-xs-12"><p>'+tracksListing[0].distance+'</p></div><div class="col-md-3 col-xs-12"><p>'+tracksListing[0].startAddress+'</p></div><div class="col-md-3 col-xs-12"><p>'+tracksListing[0].endAddress+'</p></div></div>'
+                                   ); 
+                                });
+                                $.ajax({
+                                    method: 'POST',
+                                    url: 'gettracks',
+                                    data: {getStart :  Number(#{start})+9,
+                                           getNumber : 1}
+                                }).done(function(results){
+                                    var results = JSON.parse(results);
+                                    var start = results.start;
+                                    var lastPage = results.lastPage;
+                                    var tracksListing = results.tracksListing;
+                                    var dateAndTime = tracksListing[0].date.replace(/:00 GMT.*/, '')
+                                    $('.listingContainer').append( 
+                                        '<div class="row" id="'+tracksListing[0].timestamp+'"><div class="col-md-3 col-xs-12"><input value="'+tracksListing[0].timestamp+'" type="checkbox" class="trackSelect" /><a href="/'+tracksListing[0].timestamp+'">'+dateAndTime+'</a></div><div class="col-md-1 col-xs-12"><select class="typeChange"><option>Walking</option><option>Driving</option><option>Boating</option></select></div><div class="col-md-2 col-xs-12"><p>'+tracksListing[0].distance+'</p></div><div class="col-md-3 col-xs-12"><p>'+tracksListing[0].startAddress+'</p></div><div class="col-md-3 col-xs-12"><p>'+tracksListing[0].endAddress+'</p></div></div>'
+                                   ); 
+                                });
                             }
                         });
                     }else{
-                        $("<div>You must select two tracks to merge.</div>").dialog({
+                        $(':checkbox:checked').each(function(){
+                            this.click();
+                        });
+                        $('<div>You must select two tracks to merge.</div>').dialog({
                             title: 'Error',
                             resizable: false,
                             modal: true,
@@ -75,7 +119,10 @@ block content
                         return false;
                     }
                 } else {
-                    $("<div>You must select two tracks to merge.</div>").dialog({
+                    $(':checkbox:checked').each(function(){
+                        this.click();
+                    });
+                    $('<div>You must select two tracks to merge.</div>').dialog({
                         title: 'Error',
                         resizable: false,
                         modal: true,
@@ -89,24 +136,30 @@ block content
                 }
             });
             $('.deleteTracks').click(function(){
-                var checkboxes = $("input:checkbox:checked").map(function(){
+                var checkboxes = $('input:checkbox:checked').map(function(){
                                       return $(this).val();
                                       }).get();
                 if(checkboxes.length > 0){
                     var ajaxData = JSON.stringify(checkboxes);
                     $.ajax({
-                       method: "POST",
-                       url: "delete",
+                       method: 'POST',
+                       url: 'delete',
                        data: {tracks : ajaxData}
                     })
                     .done(function(tracks){
+                        $(':checkbox:checked').each(function(){
+                            this.click();
+                        });
                         var deletedTracks = JSON.parse(tracks);
                         for(i=0;i<deletedTracks.length;i++){
                             $('#'+deletedTracks[i]).remove();
                         }
                     });
                 }else{
-                    $("<div>You must select at least one track to delete.</div>").dialog({
+                    $(':checkbox:checked').each(function(){
+                        this.click();
+                    });
+                    $('<div>You must select at least one track to delete.</div>').dialog({
                         title: 'Error',
                         resizable: false,
                         modal: true,
@@ -122,7 +175,7 @@ block content
         });
     body
         .container-fluid
-            div(id="alert" style='display:none').alert.alert-warning
+            div(id='alert' style='display:none').alert.alert-warning
                 p You must select two tracks to merge.
             .row
                 - if(Number(start) == 0){
@@ -136,9 +189,9 @@ block content
                             span.glyphicon.glyphicon-arrow-left
                 - }
                 .col-md-1.col-xs-12
-                    button.mergeTracks.btn.btn-primary Merge
+                    button.btn.btn-primary.mergeTracks Merge
                 .col-md-1.col-xs-12
-                    button.deleteTracks.btn.btn-primary Delete 
+                    button.btn.btn-primary.deleteTracks Delete 
                 - if(!lastPage){
                     .col-md-1.col-xs-12
                         - var next = Number(start) + 10
@@ -162,39 +215,40 @@ block content
                         p.font-weight-bold Start Location
                     .col-md-3.col-xs-12
                         p.font-weight-bold End Location
-                each track in tracksListing
-                    - var dateAndTime = track.date.replace(/:00 GMT.*/, '')
-                    .row(id=track.timestamp)
-                        .col-md-3.col-xs-12
-                            input(value=track.timestamp type='checkbox').trackSelect
-                            |  
-                            a(href='/' + track.timestamp) #{dateAndTime}
-                        .col-md-1.col-xs-12
-                            select.typeChange
-                                - if(track.type == 'walking'){
-                                    option(value=track.timestamp + '-walking', selected="selected") Walking
-                                    option(value=track.timestamp + '-driving') Driving
-                                    option(value=track.timestamp + '-boating') Boating 
-                                - }else if(track.type == 'driving'){
-                                    option(value=track.timestamp + '-walking') Walking
-                                    option(value=track.timestamp + '-driving', selected="selected") Driving
-                                    option(value=track.timestamp + '-boating') Boating
-                                - }else if(track.type == 'boating'){
-                                    option(value=track.timestamp + '-walking') Walking
-                                    option(value=track.timestamp + '-driving') Driving
-                                    option(value=track.timestamp + '-boating', selected="selected") Boating
-                                - }else{
-                                    option(value=track.timestamp + '-walking') Walking
-                                    option(value=track.timestamp + '-driving') Driving
-                                    option(value=track.timestamp + '-boating') Boating
-                                    option(value=track.timestamp + '-???', selected="selected") ??? 
-                                - }
-                        .col-md-2.col-xs-12
-                            p #{track.distance}
-                        .col-md-3.col-xs-12
-                            p #{track.startAddress}
-                        .col-md-3.col-xs-12
-                            p #{track.endAddress}
+                .listingContainer
+                    each track in tracksListing
+                        - var dateAndTime = track.date.replace(/:00 GMT.*/, '')
+                        .row(id=track.timestamp)
+                            .col-md-3.col-xs-12
+                                input(value=track.timestamp type='checkbox').trackSelect
+                                |  
+                                a(href='/' + track.timestamp) #{dateAndTime}
+                            .col-md-1.col-xs-12
+                                select.typeChange
+                                    - if(track.type == 'walking'){
+                                        option(value=track.timestamp + '-walking', selected='selected') Walking
+                                        option(value=track.timestamp + '-driving') Driving
+                                        option(value=track.timestamp + '-boating') Boating 
+                                    - }else if(track.type == 'driving'){
+                                        option(value=track.timestamp + '-walking') Walking
+                                        option(value=track.timestamp + '-driving', selected='selected') Driving
+                                        option(value=track.timestamp + '-boating') Boating
+                                    - }else if(track.type == 'boating'){
+                                        option(value=track.timestamp + '-walking') Walking
+                                        option(value=track.timestamp + '-driving') Driving
+                                        option(value=track.timestamp + '-boating', selected='selected') Boating
+                                    - }else{
+                                        option(value=track.timestamp + '-walking') Walking
+                                        option(value=track.timestamp + '-driving') Driving
+                                        option(value=track.timestamp + '-boating') Boating
+                                        option(value=track.timestamp + '-???', selected='selected') ??? 
+                                    - }
+                            .col-md-2.col-xs-12
+                                p #{track.distance}
+                            .col-md-3.col-xs-12
+                                p #{track.startAddress}
+                            .col-md-3.col-xs-12
+                                p #{track.endAddress}
             - }else{
                 p No tracks to display.
             - }
@@ -210,9 +264,9 @@ block content
                             span.glyphicon.glyphicon-arrow-left
                 - }
                 .col-md-1.col-xs-12
-                    button.mergeTracks.btn.btn-primary Merge
+                    button.btn.btn-primary.mergeTracks Merge
                 .col-md-1.col-xs-12
-                    button.deleteTracks.btn.btn-primary Delete 
+                    button.btn.btn-primary.deleteTracks Delete 
                 - if(!lastPage){
                     .col-md-1.col-xs-12
                         - var next = Number(start) + 10

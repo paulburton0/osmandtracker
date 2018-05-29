@@ -7,7 +7,7 @@ const mapApiKey = 'AIzaSyBq19VvTo2il5kgW1oV2NW6y6sF83EI7AI';
 
 router.get('/', function(req, res, next){
     var start = req.query.start ? req.query.start : 0;
-    track.getTracks(start, function(err, lastPage, tracks){
+    track.getTracks(start, 10, function(err, lastPage, tracks){
         var tracksListing = new Array();
         var iterator = tracks.length;
         for(i=0; i<tracks.length; i++){
@@ -74,6 +74,77 @@ router.get('/', function(req, res, next){
     });
 });
 
+router.post('/gettracks', function(req, res, next){
+    var start = req.body.getStart;
+    var number = req.body.getNumber;
+    track.getTracks(start, number, function(err, lastPage, tracks){
+        var tracksListing = new Array();
+        var iterator = tracks.length;
+        for(i=0; i<tracks.length; i++){
+            track.getTrackDetails(tracks[i], function(err, trackDetails){
+                if(err){
+                    console.error(err);
+                    iterator--;
+                    if(!iterator){
+                        tracksListing.sort(function(a, b){
+                            if (Number(a.timestamp) > Number(b.timestamp))
+                                return -1;
+                            if (Number(a.timestamp) < Number(b.timestamp))
+                                return 1;
+                            return 0;
+                        });
+                    }else{
+                        return; 
+                    }
+                }
+                var trackDate = new Date(Number(trackDetails.trackName));
+                var year = trackDate.getFullYear();
+                var month = trackDate.getMonth();
+                var day = trackDate.getDate();
+                var hour = trackDate.getHours();
+                var minute = trackDate.getMinutes();
+                var dateString = new Date(year, month, day, hour, minute).toString();
+				request('https://maps.googleapis.com/maps/api/geocode/json?latlng=' + trackDetails.points[0].lat + ',' + trackDetails.points[0].lon + '&key=' + mapApiKey, function(err, response, body) {  
+                    if(err){
+                        console.error(trackDetails.trackName + ' ' + err);
+                    }
+					var startDetails = JSON.parse(body);
+                    if(startDetails.error_message){
+                        console.error(startDetails.error_message);    
+                        return;
+                    }
+					var startAddress = startDetails.results[0].formatted_address;
+					request('https://maps.googleapis.com/maps/api/geocode/json?latlng=' + trackDetails.points[trackDetails.points.length-1].lat + ',' + trackDetails.points[trackDetails.points.length-1].lon + '&key=' + mapApiKey, function(err, response, body) {  
+                        if(err){
+                            console.error(err);
+                            return;
+                        }
+                        var endDetails = JSON.parse(body);
+                        if(endDetails.error_message){
+                            console.error(endDetails.error_message);    
+                            return;
+                        }
+						var endAddress = endDetails.results[0].formatted_address;
+						tracksListing.push({'timestamp': trackDetails.trackName, 'type': trackDetails.type, 'date': dateString, 'distance': trackDetails.totalDistance, 'start': trackDetails.trackStart, startAddress, 'end': trackDetails.trackEnd, endAddress});
+						iterator--;
+						if(!iterator){
+							tracksListing.sort(function(a, b){
+								if (Number(a.timestamp) > Number(b.timestamp))
+									return -1;
+								if (Number(a.timestamp) < Number(b.timestamp))
+									return 1;
+								return 0;
+							});
+                            var results = JSON.stringify({start: start, lastPage: lastPage, tracksListing: tracksListing});
+                            console.error(results);
+							res.send(results);
+						}
+					});
+				});
+            });
+        }
+    });
+});
 router.post('/changetype', function(req, res, next){
     track.changeType(req.body.track, req.body.type, function(err){
         if(err){
