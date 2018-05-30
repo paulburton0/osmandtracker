@@ -154,6 +154,23 @@ block content
                         for(i=0;i<deletedTracks.length;i++){
                             $('#'+deletedTracks[i]).remove();
                         }
+                        $.ajax({
+                            method: 'POST',
+                            url: 'gettracks',
+                            data: {getStart :  Number(#{start})+9,
+                                   getNumber : checkboxes.length}
+                        }).done(function(results){
+                            var results = JSON.parse(results);
+                            var start = results.start;
+                            var lastPage = results.lastPage;
+                            var tracksListing = results.tracksListing;
+                            var appendTracks = '';
+                            for(i=0;i<tracksListing.length;i++){
+                                var dateAndTime = tracksListing[i].date.replace(/:00 GMT.*/, '')
+                                appendTracks += '<div class="row" id="'+tracksListing[i].timestamp+'"><div class="col-md-3 col-xs-12"><input value="'+tracksListing[i].timestamp+'" type="checkbox" class="trackSelect" /><a href="/'+tracksListing[i].timestamp+'">'+dateAndTime+'</a></div><div class="col-md-1 col-xs-12"><select class="typeChange"><option>Walking</option><option>Driving</option><option>Boating</option></select></div><div class="col-md-2 col-xs-12"><p>'+tracksListing[i].distance+'</p></div><div class="col-md-3 col-xs-12"><p>'+tracksListing[i].startAddress+'</p></div><div class="col-md-3 col-xs-12"><p>'+tracksListing[i].endAddress+'</p></div></div>';
+                            }
+                            $('.listingContainer').append(appendTracks ); 
+                        });
                     });
                 }else{
                     $(':checkbox:checked').each(function(){
