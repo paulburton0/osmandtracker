@@ -136,7 +136,6 @@ router.post('/gettracks', function(req, res, next){
 								return 0;
 							});
                             var results = JSON.stringify({start: start, lastPage: lastPage, tracksListing: tracksListing});
-                            console.error(results);
 							res.send(results);
 						}
 					});

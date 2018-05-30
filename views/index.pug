@@ -81,9 +81,21 @@ block content
                                     var lastPage = results.lastPage;
                                     var tracksListing = results.tracksListing;
                                     var dateAndTime = tracksListing[0].date.replace(/:00 GMT.*/, '')
-                                    $('#'+trackId).replaceWith( 
-                                        '<div class="row" id="'+tracksListing[0].timestamp+'"><div class="col-md-3 col-xs-12"><input value="'+tracksListing[0].timestamp+'" type="checkbox" class="trackSelect" /><a href="/'+tracksListing[0].timestamp+'">'+dateAndTime+'</a></div><div class="col-md-1 col-xs-12"><select class="typeChange"><option>Walking</option><option>Driving</option><option>Boating</option></select></div><div class="col-md-2 col-xs-12"><p>'+tracksListing[0].distance+'</p></div><div class="col-md-3 col-xs-12"><p>'+tracksListing[0].startAddress+'</p></div><div class="col-md-3 col-xs-12"><p>'+tracksListing[0].endAddress+'</p></div></div>'
-                                   ); 
+                                    var appendTracks = '<div class="row" id="'+tracksListing[0].timestamp+'"><div class="col-md-3 col-xs-12"><input value="'+tracksListing[0].timestamp+'" type="checkbox" class="trackSelect" /> <a href="/'+tracksListing[0].timestamp+'">'+dateAndTime+'</a></div><div class="col-md-1 col-xs-12"><select class="typeChange">';
+                                    if(tracksListing[0].type == 'walking'){
+                                        appendTracks += '<option selected="selected">Walking</option><option>Driving</option><option>Boating</option>';
+                                    }
+                                    else if(tracksListing[0].type == 'driving'){
+                                        appendTracks += '<option>Walking</option><option selected="selected">Driving</option><option>Boating</option>';
+                                    }
+                                    else if(tracksListing[0].type == 'boating'){
+                                        appendTracks += '<option>Walking</option><option>Driving</option><option selected="selected">Boating</option>';
+                                    }
+                                    else{
+                                        appendTracks += '<option selected="selected">???</option><option>Walking</option><option>Driving</option><option>Boating</option>';
+                                    }
+                                    appendTracks += '</select></div><div class="col-md-2 col-xs-12"><p>'+tracksListing[0].distance+'</p></div><div class="col-md-3 col-xs-12"><p>'+tracksListing[0].startAddress+'</p></div><div class="col-md-3 col-xs-12"><p>'+tracksListing[0].endAddress+'</p></div></div>';
+                                    $('#'+trackId).replaceWith(appendTracks); 
                                 });
                                 $.ajax({
                                     method: 'POST',
@@ -96,9 +108,24 @@ block content
                                     var lastPage = results.lastPage;
                                     var tracksListing = results.tracksListing;
                                     var dateAndTime = tracksListing[0].date.replace(/:00 GMT.*/, '')
-                                    $('.listingContainer').append( 
-                                        '<div class="row" id="'+tracksListing[0].timestamp+'"><div class="col-md-3 col-xs-12"><input value="'+tracksListing[0].timestamp+'" type="checkbox" class="trackSelect" /><a href="/'+tracksListing[0].timestamp+'">'+dateAndTime+'</a></div><div class="col-md-1 col-xs-12"><select class="typeChange"><option>Walking</option><option>Driving</option><option>Boating</option></select></div><div class="col-md-2 col-xs-12"><p>'+tracksListing[0].distance+'</p></div><div class="col-md-3 col-xs-12"><p>'+tracksListing[0].startAddress+'</p></div><div class="col-md-3 col-xs-12"><p>'+tracksListing[0].endAddress+'</p></div></div>'
-                                   ); 
+                                    var appendTracks = '<div class="row" id="'+tracksListing[0].timestamp+'"><div class="col-md-3 col-xs-12"><input value="'+tracksListing[0].timestamp+'" type="checkbox" class="trackSelect" /> <a href="/'+tracksListing[0].timestamp+'">'+dateAndTime+'</a></div><div class="col-md-1 col-xs-12"><select class="typeChange">';
+                                    if(tracksListing[0].type == 'walking'){
+                                        appendTracks += '<option selected="selected">Walking</option><option>Driving</option><option>Boating</option>';
+                                    }
+                                    else if(tracksListing[0].type == 'driving'){
+                                        appendTracks += '<option>Walking</option><option selected="selected">Driving</option><option>Boating</option>';
+                                    }
+                                    else if(tracksListing[0].type == 'boating'){
+                                        appendTracks += '<option>Walking</option><option>Driving</option><option selected="selected">Boating</option>';
+                                    }
+                                    else{
+                                        appendTracks += '<option selected="selected">???</option><option>Walking</option><option>Driving</option><option>Boating</option>';
+                                    }
+                                    appendTracks += '</select></div><div class="col-md-2 col-xs-12"><p>'+tracksListing[0].distance+'</p></div><div class="col-md-3 col-xs-12"><p>'+tracksListing[0].startAddress+'</p></div><div class="col-md-3 col-xs-12"><p>'+tracksListing[0].endAddress+'</p></div></div>';
+                                    $('#'+trackId).replaceWith(appendTracks); 
+                                    if(lastPage){
+                                        $('.nextButton').addClass('disabled');
+                                    }
                                 });
                             }
                         });
@@ -157,7 +184,7 @@ block content
                         $.ajax({
                             method: 'POST',
                             url: 'gettracks',
-                            data: {getStart :  Number(#{start})+9,
+                            data: {getStart :  Number(#{start})+10-checkboxes.length,
                                    getNumber : checkboxes.length}
                         }).done(function(results){
                             var results = JSON.parse(results);
@@ -167,9 +194,25 @@ block content
                             var appendTracks = '';
                             for(i=0;i<tracksListing.length;i++){
                                 var dateAndTime = tracksListing[i].date.replace(/:00 GMT.*/, '')
-                                appendTracks += '<div class="row" id="'+tracksListing[i].timestamp+'"><div class="col-md-3 col-xs-12"><input value="'+tracksListing[i].timestamp+'" type="checkbox" class="trackSelect" /><a href="/'+tracksListing[i].timestamp+'">'+dateAndTime+'</a></div><div class="col-md-1 col-xs-12"><select class="typeChange"><option>Walking</option><option>Driving</option><option>Boating</option></select></div><div class="col-md-2 col-xs-12"><p>'+tracksListing[i].distance+'</p></div><div class="col-md-3 col-xs-12"><p>'+tracksListing[i].startAddress+'</p></div><div class="col-md-3 col-xs-12"><p>'+tracksListing[i].endAddress+'</p></div></div>';
+                                appendTracks += '<div class="row" id="'+tracksListing[i].timestamp+'"><div class="col-md-3 col-xs-12"><input value="'+tracksListing[i].timestamp+'" type="checkbox" class="trackSelect" /> <a href="/'+tracksListing[i].timestamp+'">'+dateAndTime+'</a></div><div class="col-md-1 col-xs-12"><select class="typeChange">';
+                                if(tracksListing[i].type == 'walking'){
+                                    appendTracks += '<option selected="selected">Walking</option><option>Driving</option><option>Boating</option>';
+                                }
+                                else if(tracksListing[i].type == 'driving'){
+                                    appendTracks += '<option>Walking</option><option selected="selected">Driving</option><option>Boating</option>';
+                                }
+                                else if(tracksListing[i].type == 'boating'){
+                                    appendTracks += '<option>Walking</option><option>Driving</option><option selected="selected">Boating</option>';
+                                }
+                                else{
+                                    appendTracks += '<option selected="selected">???</option><option>Walking</option><option>Driving</option><option>Boating</option>';
+                                }
+                                appendTracks += '</select></div><div class="col-md-2 col-xs-12"><p>'+tracksListing[i].distance+'</p></div><div class="col-md-3 col-xs-12"><p>'+tracksListing[i].startAddress+'</p></div><div class="col-md-3 col-xs-12"><p>'+tracksListing[i].endAddress+'</p></div></div>';
                             }
-                            $('.listingContainer').append(appendTracks ); 
+                            $('.listingContainer').append(appendTracks); 
+                            if(lastPage){
+                                $('.nextButton').addClass('disabled');
+                            }
                         });
                     });
                 }else{
@@ -212,12 +255,12 @@ block content
                 - if(!lastPage){
                     .col-md-1.col-xs-12
                         - var next = Number(start) + 10
-                        a(role='button' href='http://soren625.duckdns.org:3001/?start=' + next).btn.btn-primary
+                        a(role='button' href='http://soren625.duckdns.org:3001/?start=' + next).btn.btn-primary.nextButton
                             span.glyphicon.glyphicon-arrow-right
                 - } else {
                     .col-md-1.col-xs-12
                         - var next = Number(start) + 10
-                        a(role='button' href='http://soren625.duckdns.org:3001/?start=' + next).btn.btn-primary.disabled
+                        a(role='button' href='http://soren625.duckdns.org:3001/?start=' + next).btn.btn-primary.nextButton.disabled
                             span.glyphicon.glyphicon-arrow-right
                 - }
             - if(tracksListing.length > 0){
@@ -287,11 +330,11 @@ block content
                 - if(!lastPage){
                     .col-md-1.col-xs-12
                         - var next = Number(start) + 10
-                        a(role='button' href='http://soren625.duckdns.org:3001/?start=' + next).btn.btn-primary
+                        a(role='button' href='http://soren625.duckdns.org:3001/?start=' + next).btn.btn-primary.nextButton
                             span.glyphicon.glyphicon-arrow-right
                 - } else {
                     .col-md-1.col-xs-12
                         - var next = Number(start) + 10
-                        a(role='button' href='http://soren625.duckdns.org:3001/?start=' + next).btn.btn-primary.disabled
+                        a(role='button' href='http://soren625.duckdns.org:3001/?start=' + next).btn.btn-primary.nextButton.disabled
                             span.glyphicon.glyphicon-arrow-right
                 - }
