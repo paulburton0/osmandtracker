@@ -3,44 +3,29 @@ block content
     style.
         html{
             height: 100%;
-            width: 100%;
         }
         body{
             height: 100%;
-            width: 100%;
+        }
+        .container{
+            height: 100%;
         }
         #map{
             height: 50%;
-            width: 90%;
-            position: absolute;
-            text-align: center;
-            margin: auto;
-            margin-top: 30px;
+            width: 100%;
+            position: relative;
+            margin-top: 15px;
         }
         .bold{
             font-weight: bold;    
         }
-        .container{
-            width: 80%;
-            height: 100%;
-        }
-        #mapWrapper{
-            height: 100%;
-            width: 100%;
-            margin: auto;
-            text-align: center;
-        }
         #chartWrapper{
-            height: 100%;
+            height: 30%;
             width: 100%;
-            margin:auto;
-            text-align:center;
         }
         #trackChart{
             height: 100%;
             width: 100%;
-            margin:auto;
-            text-align:center;
         }
         #splitButton{
             float: right;
@@ -48,6 +33,7 @@ block content
     script.
         $(window).resize(function(){
             drawChart($("input:radio[name ='chartType']:checked").val());
+            map.fitBounds(firstpolyline.getBounds());
         });
         $(document).ready(function(){
             $('input[type=radio][name=chartType]').change(function(){
@@ -56,13 +42,13 @@ block content
             });
             markersPosition = !{JSON.stringify(trackDetails.points)};
             markers = new Array();
-            for(i=0;i<markersPosition.length; i++){
-                var position = new google.maps.LatLng(markersPosition[i].lat, markersPosition[i].lon);
-                var marker = new google.maps.Marker({
-                    position: position,
-                });
-                markers.push(marker);
-            }
+            //for(i=0;i<markersPosition.length; i++){
+                //var position = new google.maps.LatLng(markersPosition[i].lat, markersPosition[i].lon);
+                //var marker = new google.maps.Marker({
+                //    position: position,
+                //});
+                //markers.push(marker);
+            //}
         }); 
         $(function(){
             $("input").checkboxradio({
@@ -122,73 +108,27 @@ block content
 
             });
             google.visualization.events.addListener(trackChart, 'onmouseover', function(e) {
-                showMarker(data, e.row);
+                //showMarker(data, e.row);
             });
             google.visualization.events.addListener(trackChart, 'onmouseout', function(e) {
-                hideMarker(data, e.row);
+                //hideMarker(data, e.row);
             });
         }
 
         function showMarker(data, row) {
             if (row != null) {
-                markers[row].setMap(map);
+                //markers[row].setMap(map);
             }
         }
 
         function hideMarker(data, row) {
             if (row != null) {
-                markers[row].setMap(null);
+                //markers[row].setMap(null);
             }
-        }
-
-        function initMap() {
-            map = new google.maps.Map(document.getElementById('map'), {
-                mapTypeId: 'terrain'
-
-            });
-
-            var markers = #{trackDetails.latLon};
-            var bounds = new google.maps.LatLngBounds();
-            for(i=0;i<markers.length;i++) {
-                bounds.extend(markers[i]);
-            }
-
-            map.setCenter(bounds.getCenter());
-            map.fitBounds(bounds);
-
-            var startMarker = new google.maps.Marker({
-                    position: #{trackDetails.trackStart},
-                    map: map,
-                    title: 'Start',
-                    label: 'A'
-                });
-
-            var endMarker = new google.maps.Marker({
-                    position: #{trackDetails.trackEnd},
-                    map: map,
-                    title: 'End',
-                    label: 'B'
-                });
-
-            var trackCoordinates = #{trackDetails.latLon};
-
-            var trackPath = new google.maps.Polyline({
-                path: trackCoordinates,
-                geodesic: false,
-                strokeColor: '#FF0000',
-                strokeOpacity: 1.0,
-                strokeWeight: 2
-            });
-
-            google.maps.event.addListener(trackPath, 'click', function(e) {
-                alert('you clicked ' + e.latLng);
-             });
-
-            trackPath.setMap(map);
         }
 
     body
-        .container-fluid
+        .container
             a(href="/" role='button').btn.btn-primary 
                 <span class="glyphicon glyphicon-arrow-left"></span> <span>Tracks</span>
             h2 #{trackDetails.dateString.replace(/:00 GMT.*/, '')} - #{trackDetails.type}
@@ -231,6 +171,39 @@ block content
                     p &nbsp;
             div(id="chartWrapper")
                 div(id="trackChart")
-            div(id="mapWrapper")
-                div(id="map")
-    script(src!='https://maps.googleapis.com/maps/api/js?key=' + mapApiKey +'&callback=initMap')
+            div(id="map")
+
+            <script type="text/javascript" src="./track.json"></script>
+            script.
+                var mydata = JSON.parse(data);
+                var pointList = [];
+                var maxLon = Number(mydata[0].lon);
+                var minLon = Number(mydata[0].lon);
+                var maxLat = Number(mydata[0].lat);
+                var minLat = Number(mydata[0].lat);
+                for(i=0;i<mydata.length;i++){
+                    maxLon = Number(mydata[i].lon) > maxLon ? Number(mydata[i].lon) : maxLon;
+                    minLon = Number(mydata[i].lon) < minLon ? Number(mydata[i].lon) : minLon;
+                    maxLat = Number(mydata[i].lat) > maxLat ? Number(mydata[i].lat) : maxLat;
+                    minLat = Number(mydata[i].lat) < minLat ? Number(mydata[i].lat) : minLat;
+
+                    pointList.push(new L.LatLng(mydata[i].lat, mydata[i].lon));
+                }
+                var centerLon = ((maxLon - minLon) / 2) + minLon;
+                var centerLat = ((maxLat- minLat) / 2) + minLat;
+                var map = L.map('map').setView([centerLat, centerLon], 13);
+
+                L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoicnV0dGlubXVkZGVyIiwiYSI6ImNqazJuOWgwcTB1N3Iza3FrNGU1YjVqcDMifQ.vi-wo8KxgDglYrQKtBbGqA', {
+                    attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+                    maxZoom: 18,
+                    id: 'mapbox.streets'
+                }).addTo(map);
+
+                var firstpolyline = new L.Polyline(pointList, {
+                    color: 'red',
+                    weight: 3,
+                    opacity: 0.5,
+                    smoothFactor: 1
+                });
+                firstpolyline.addTo(map); 
+                map.fitBounds(firstpolyline.getBounds());
