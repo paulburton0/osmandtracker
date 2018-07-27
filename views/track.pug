@@ -3,38 +3,24 @@ block content
     style.
         html{
             height: 100%;
-            width: 100%;
         }
         body{
             height: 100%;
-            width: 100%;
         }
         #map{
-            height: 50%;
-            width: 90%;
-            position: absolute;
-            text-align: center;
-            margin: auto;
-            margin-top: 30px;
+            height: 60%;
+            width: 100%;
+            margin-top: 15px;
         }
         .bold{
             font-weight: bold;    
         }
         .container{
-            width: 80%;
             height: 100%;
-        }
-        #mapWrapper{
-            height: 100%;
-            width: 100%;
-            margin: auto;
-            text-align: center;
         }
         #chartWrapper{
-            height: 100%;
+            height: 20%;
             width: 100%;
-            margin:auto;
-            text-align:center;
         }
         #trackChart{
             height: 100%;
@@ -48,6 +34,7 @@ block content
     script.
         $(window).resize(function(){
             drawChart($("input:radio[name ='chartType']:checked").val());
+            map.fitBounds(bounds);
         });
         $(document).ready(function(){
             $('input[type=radio][name=chartType]').change(function(){
@@ -141,6 +128,8 @@ block content
             }
         }
 
+        var bounds;
+
         function initMap() {
             map = new google.maps.Map(document.getElementById('map'), {
                 mapTypeId: 'terrain'
@@ -148,7 +137,7 @@ block content
             });
 
             var markers = #{trackDetails.latLon};
-            var bounds = new google.maps.LatLngBounds();
+            bounds = new google.maps.LatLngBounds();
             for(i=0;i<markers.length;i++) {
                 bounds.extend(markers[i]);
             }
@@ -180,15 +169,17 @@ block content
                 strokeWeight: 2
             });
 
+            /*
             google.maps.event.addListener(trackPath, 'click', function(e) {
                 alert('you clicked ' + e.latLng);
              });
+            */
 
             trackPath.setMap(map);
         }
 
     body
-        .container-fluid
+        .container
             a(href="/" role='button').btn.btn-primary 
                 <span class="glyphicon glyphicon-arrow-left"></span> <span>Tracks</span>
             h2 #{trackDetails.dateString.replace(/:00 GMT.*/, '')} - #{trackDetails.type}
@@ -231,6 +222,5 @@ block content
                     p &nbsp;
             div(id="chartWrapper")
                 div(id="trackChart")
-            div(id="mapWrapper")
-                div(id="map")
+            div(id="map")
     script(src!='https://maps.googleapis.com/maps/api/js?key=' + mapApiKey +'&callback=initMap')
