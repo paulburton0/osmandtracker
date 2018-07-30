@@ -33,7 +33,7 @@ block content
     script.
         $(window).resize(function(){
             drawChart($("input:radio[name ='chartType']:checked").val());
-            map.fitBounds(firstpolyline.getBounds());
+            trackMap.fitBounds(firstpolyline.getBounds());
         });
         $(document).ready(function(){
             $('input[type=radio][name=chartType]').change(function(){
@@ -43,7 +43,7 @@ block content
             markersPosition = !{JSON.stringify(trackDetails.points)};
             markers = new Array();
             for(i=0;i<markersPosition.length; i++){
-                var marker = L.marker([markersPosition[i].lat, markersPosition[i].lon]);
+                var marker = L.latLng(parseFloat(markersPosition[i].lat), parseFloat(markersPosition[i].lon));
                 markers.push(marker);
             }
         }); 
@@ -53,6 +53,7 @@ block content
             });
         });
         var splitIndex;
+        var trackMarker;
         google.charts.load('current', {packages: ['corechart']});
         google.charts.setOnLoadCallback(drawChart);
         function drawChart(type){
@@ -105,23 +106,38 @@ block content
 
             });
             google.visualization.events.addListener(trackChart, 'onmouseover', function(e) {
-                //showMarker(data, e.row);
+                showMarker(e.row);
+                return;
             });
             google.visualization.events.addListener(trackChart, 'onmouseout', function(e) {
-                //hideMarker(data, e.row);
+                hideMarker(e.row);
+                return;
             });
         }
 
-        function showMarker(data, row) {
+        function showMarker(row) {
+            var pointIcon;
             if (row != null) {
-                markers[row].addTo(map);
+                pointIcon = L.icon({
+                    iconUrl: 'stylesheets/images/marker-point.png',
+                    shadowUrl: 'stylesheets/images/marker-point.png',
+
+                    iconSize:     [15, 15], // size of the icon
+                    shadowSize:   [0, 0], // size of the shadow
+                    iconAnchor:   [7, 7], // point of the icon which will correspond to marker's location
+                    shadowAnchor: [0, 0],  // the same for the shadow
+                    popupAnchor:  [0, 0] // point from which the popup should open relative to the iconAnchor
+                });
+                trackMarker = L.marker(markers[row], {icon: pointIcon}).addTo(trackMap);
             }
+            return;
         }
 
-        function hideMarker(data, row) {
+        function hideMarker(row) {
             if (row != null) {
-                //markers[row].setMap(null);
+                trackMap.removeLayer(trackMarker);
             }
+            return;
         }
 
     body
@@ -202,10 +218,32 @@ block content
                     smoothFactor: 1
                 });
 
-                var startMarker = L.marker(pointList[0]);
-                var endMarker = L.marker(pointList[pointList.length-1]);
+                var startIcon = L.icon({
+                    iconUrl: 'stylesheets/images/marker-icon-start.png',
+                    shadowUrl: 'stylesheets/images/marker-shadow.png',
+
+                    iconSize:     [25, 41], // size of the icon
+                    shadowSize:   [41, 41], // size of the shadow
+                    iconAnchor:   [12, 41], // point of the icon which will correspond to marker's location
+                    shadowAnchor: [12, 41],  // the same for the shadow
+                    popupAnchor:  [-3, -76] // point from which the popup should open relative to the iconAnchor
+                });
+
+                var endIcon = L.icon({
+                    iconUrl: 'stylesheets/images/marker-icon-end.png',
+                    shadowUrl: 'stylesheets/images/marker-shadow.png',
+
+                    iconSize:     [25, 41], // size of the icon
+                    shadowSize:   [41, 41], // size of the shadow
+                    iconAnchor:   [12, 41], // point of the icon which will correspond to marker's location
+                    shadowAnchor: [12, 41],  // the same for the shadow
+                    popupAnchor:  [-3, -76] // point from which the popup should open relative to the iconAnchor
+                });
+
+                var startMarker = L.marker(pointList[0], {icon: startIcon});
+                var endMarker = L.marker(pointList[pointList.length-1], {icon: endIcon});
 
                 firstpolyline.addTo(trackMap); 
-                trackMap.fitBounds(firstpolyline.getBounds());
+                trackMap.fitBounds(firstpolyline.getBounds(), {paddingTopLeft: [0, 25], paddingBottomRight: [25, 0]});
                 startMarker.addTo(trackMap);
                 endMarker.addTo(trackMap);
