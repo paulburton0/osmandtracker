@@ -3,7 +3,8 @@ var router = express.Router();
 var request = require('request');
 var track = require('../libs/track'); 
 
-const mapApiKey = 'AIzaSyBq19VvTo2il5kgW1oV2NW6y6sF83EI7AI';
+const googleMapApiKey = 'AIzaSyBq19VvTo2il5kgW1oV2NW6y6sF83EI7AI';
+const mapboxApiKey = 'pk.eyJ1IjoicnV0dGlubXVkZGVyIiwiYSI6ImNqazJuOWgwcTB1N3Iza3FrNGU1YjVqcDMifQ.vi-wo8KxgDglYrQKtBbGqA';
 
 router.get('/', function(req, res, next){
     var start = req.query.start ? req.query.start : 0;
@@ -34,7 +35,7 @@ router.get('/', function(req, res, next){
                 var hour = trackDate.getHours();
                 var minute = trackDate.getMinutes();
                 var dateString = new Date(year, month, day, hour, minute).toString();
-				request('https://maps.googleapis.com/maps/api/geocode/json?latlng=' + trackDetails.points[0].lat + ',' + trackDetails.points[0].lon + '&key=' + mapApiKey, function(err, response, body) {  
+				request('https://maps.googleapis.com/maps/api/geocode/json?latlng=' + trackDetails.points[0].lat + ',' + trackDetails.points[0].lon + '&key=' + googleMapApiKey, function(err, response, body) {  
                     if(err){
                         console.error(trackDetails.trackName + ' ' + err);
                     }
@@ -44,7 +45,7 @@ router.get('/', function(req, res, next){
                         return;
                     }
 					var startAddress = startDetails.results[0].formatted_address;
-					request('https://maps.googleapis.com/maps/api/geocode/json?latlng=' + trackDetails.points[trackDetails.points.length-1].lat + ',' + trackDetails.points[trackDetails.points.length-1].lon + '&key=' + mapApiKey, function(err, response, body) {  
+					request('https://maps.googleapis.com/maps/api/geocode/json?latlng=' + trackDetails.points[trackDetails.points.length-1].lat + ',' + trackDetails.points[trackDetails.points.length-1].lon + '&key=' + googleMapApiKey, function(err, response, body) {  
                         if(err){
                             console.error(err);
                             return;
@@ -68,7 +69,7 @@ router.get('/', function(req, res, next){
 							res.render('index', {start, lastPage, tracksListing});
 						}
 					});
-				});
+				})
             });
         }
     });
@@ -104,7 +105,7 @@ router.post('/gettracks', function(req, res, next){
                 var hour = trackDate.getHours();
                 var minute = trackDate.getMinutes();
                 var dateString = new Date(year, month, day, hour, minute).toString();
-				request('https://maps.googleapis.com/maps/api/geocode/json?latlng=' + trackDetails.points[0].lat + ',' + trackDetails.points[0].lon + '&key=' + mapApiKey, function(err, response, body) {  
+				request('https://maps.googleapis.com/maps/api/geocode/json?latlng=' + trackDetails.points[0].lat + ',' + trackDetails.points[0].lon + '&key=' + googleMapApiKey, function(err, response, body) {  
                     if(err){
                         console.error(trackDetails.trackName + ' ' + err);
                     }
@@ -114,7 +115,7 @@ router.post('/gettracks', function(req, res, next){
                         return;
                     }
 					var startAddress = startDetails.results[0].formatted_address;
-					request('https://maps.googleapis.com/maps/api/geocode/json?latlng=' + trackDetails.points[trackDetails.points.length-1].lat + ',' + trackDetails.points[trackDetails.points.length-1].lon + '&key=' + mapApiKey, function(err, response, body) {  
+					request('https://maps.googleapis.com/maps/api/geocode/json?latlng=' + trackDetails.points[trackDetails.points.length-1].lat + ',' + trackDetails.points[trackDetails.points.length-1].lon + '&key=' + googleMapApiKey, function(err, response, body) {  
                         if(err){
                             console.error(err);
                             return;
@@ -237,7 +238,7 @@ router.get(/\/[0-9]+/, function(req, res, next) {
             timeDataSet.push(timeRow);
             distDataSet.push(distRow);
         }
-        res.render('track', {trackDetails, timeDataSet: JSON.stringify(timeDataSet), distDataSet: JSON.stringify(distDataSet), mapApiKey});
+        res.render('track', {trackDetails, timeDataSet: JSON.stringify(timeDataSet), distDataSet: JSON.stringify(distDataSet), mapboxApiKey});
     });        
 });
 
