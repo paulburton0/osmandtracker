@@ -102,7 +102,7 @@ block content
                 var selection = trackChart.getSelection();
                 splitTrack = #{trackDetails.trackName};
                 splitIndex = selection[0].row;
-                $('#splitButton').removeClass('disabled').attr('href', '/split?track=' + splitTrack + '&index=' + splitIndex);
+                $('#splitButton').removeClass('disabled').attr('href', 'split?track=' + splitTrack + '&index=' + splitIndex);
 
             });
             google.visualization.events.addListener(trackChart, 'onmouseover', function(e) {
@@ -142,7 +142,7 @@ block content
 
     body
         .container
-            a(href="/" role='button').btn.btn-primary 
+            a(href="/osmandtracker" role='button').btn.btn-primary 
                 <span class="glyphicon glyphicon-arrow-left"></span> <span>Tracks</span>
             h2 #{trackDetails.dateString.replace(/:00 GMT.*/, '')} - #{trackDetails.type}
             span.font-weight-bold Plot speed and altitude by: &nbsp;
@@ -150,7 +150,7 @@ block content
             input(id="radio-1", type="radio", name="chartType", value="time" checked="checked")
             label(for='radio-2') Distance
             input(id="radio-2", type="radio", name="chartType", value="distance")
-            a(href="/split" role='button' id="splitButton").btn.btn-primary.disabled
+            a(href="split" role='button' id="splitButton").btn.btn-primary.disabled
                 span Split
             .row
                 .col-md-3

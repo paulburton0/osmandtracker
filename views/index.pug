@@ -81,7 +81,7 @@ block content
                                     var lastPage = results.lastPage;
                                     var tracksListing = results.tracksListing;
                                     var dateAndTime = tracksListing[0].date.replace(/:00 GMT.*/, '')
-                                    var appendTracks = '<div class="row" id="'+tracksListing[0].timestamp+'"><div class="col-md-3 col-xs-12"><input value="'+tracksListing[0].timestamp+'" type="checkbox" class="trackSelect" /> <a href="/'+tracksListing[0].timestamp+'">'+dateAndTime+'</a></div><div class="col-md-1 col-xs-12"><select class="typeChange">';
+                                    var appendTracks = '<div class="row" id="'+tracksListing[0].timestamp+'"><div class="col-md-3 col-xs-12"><input value="'+tracksListing[0].timestamp+'" type="checkbox" class="trackSelect" /> <a href="'+tracksListing[0].timestamp+'">'+dateAndTime+'</a></div><div class="col-md-1 col-xs-12"><select class="typeChange">';
                                     if(tracksListing[0].type == 'walking'){
                                         appendTracks += '<option selected="selected">Walking</option><option>Driving</option><option>Boating</option>';
                                     }
@@ -108,7 +108,7 @@ block content
                                     var lastPage = results.lastPage;
                                     var tracksListing = results.tracksListing;
                                     var dateAndTime = tracksListing[0].date.replace(/:00 GMT.*/, '')
-                                    var appendTracks = '<div class="row" id="'+tracksListing[0].timestamp+'"><div class="col-md-3 col-xs-12"><input value="'+tracksListing[0].timestamp+'" type="checkbox" class="trackSelect" /> <a href="/'+tracksListing[0].timestamp+'">'+dateAndTime+'</a></div><div class="col-md-1 col-xs-12"><select class="typeChange">';
+                                    var appendTracks = '<div class="row" id="'+tracksListing[0].timestamp+'"><div class="col-md-3 col-xs-12"><input value="'+tracksListing[0].timestamp+'" type="checkbox" class="trackSelect" /> <a href="'+tracksListing[0].timestamp+'">'+dateAndTime+'</a></div><div class="col-md-1 col-xs-12"><select class="typeChange">';
                                     if(tracksListing[0].type == 'walking'){
                                         appendTracks += '<option selected="selected">Walking</option><option>Driving</option><option>Boating</option>';
                                     }
@@ -194,7 +194,7 @@ block content
                             var appendTracks = '';
                             for(i=0;i<tracksListing.length;i++){
                                 var dateAndTime = tracksListing[i].date.replace(/:00 GMT.*/, '')
-                                appendTracks += '<div class="row" id="'+tracksListing[i].timestamp+'"><div class="col-md-3 col-xs-12"><input value="'+tracksListing[i].timestamp+'" type="checkbox" class="trackSelect" /> <a href="/'+tracksListing[i].timestamp+'">'+dateAndTime+'</a></div><div class="col-md-1 col-xs-12"><select class="typeChange">';
+                                appendTracks += '<div class="row" id="'+tracksListing[i].timestamp+'"><div class="col-md-3 col-xs-12"><input value="'+tracksListing[i].timestamp+'" type="checkbox" class="trackSelect" /> <a href="'+tracksListing[i].timestamp+'">'+dateAndTime+'</a></div><div class="col-md-1 col-xs-12"><select class="typeChange">';
                                 if(tracksListing[i].type == 'walking'){
                                     appendTracks += '<option selected="selected">Walking</option><option>Driving</option><option>Boating</option>';
                                 }
@@ -240,12 +240,12 @@ block content
             .row
                 - if(Number(start) == 0){
                     .col-md-1.col-xs-12
-                        a(role='button' href='http://soren625.duckdns.org:3001/?start=' + prev).btn.btn-primary.disabled
+                        a(role='button' href='?start=' + prev).btn.btn-primary.disabled
                             span.glyphicon.glyphicon-arrow-left
                 - } else {
                     .col-md-1.col-xs-12
                         - var prev = Number(start) - 10
-                        a(role='button' href='http://soren625.duckdns.org:3001/?start=' + prev).btn.btn-primary
+                        a(role='button' href='?start=' + prev).btn.btn-primary
                             span.glyphicon.glyphicon-arrow-left
                 - }
                 .col-md-1.col-xs-12
@@ -255,12 +255,12 @@ block content
                 - if(!lastPage){
                     .col-md-1.col-xs-12
                         - var next = Number(start) + 10
-                        a(role='button' href='http://soren625.duckdns.org:3001/?start=' + next).btn.btn-primary.nextButton
+                        a(role='button' href='?start=' + next).btn.btn-primary.nextButton
                             span.glyphicon.glyphicon-arrow-right
                 - } else {
                     .col-md-1.col-xs-12
                         - var next = Number(start) + 10
-                        a(role='button' href='http://soren625.duckdns.org:3001/?start=' + next).btn.btn-primary.nextButton.disabled
+                        a(role='button' href='?start=' + next).btn.btn-primary.nextButton.disabled
                             span.glyphicon.glyphicon-arrow-right
                 - }
             - if(tracksListing.length > 0){
@@ -282,7 +282,7 @@ block content
                             .col-md-3.col-xs-12
                                 input(value=track.timestamp type='checkbox').trackSelect
                                 |  
-                                a(href='/' + track.timestamp) #{dateAndTime}
+                                a(href=track.timestamp) #{dateAndTime}
                             .col-md-1.col-xs-12
                                 select.typeChange
                                     - if(track.type == 'walking'){
@@ -315,12 +315,12 @@ block content
             .row
                 - if(Number(start) == 0){
                     .col-md-1.col-xs-12
-                        a(role='button' href='http://soren625.duckdns.org:3001/?start=' + prev).btn.btn-primary.disabled
+                        a(role='button' href='?start=' + prev).btn.btn-primary.disabled
                             span.glyphicon.glyphicon-arrow-left
                 - } else {
                     .col-md-1.col-xs-12
                         - var prev = Number(start) - 10
-                        a(role='button' href='http://soren625.duckdns.org:3001/?start=' + prev).btn.btn-primary
+                        a(role='button' href='?start=' + prev).btn.btn-primary
                             span.glyphicon.glyphicon-arrow-left
                 - }
                 .col-md-1.col-xs-12
@@ -330,11 +330,11 @@ block content
                 - if(!lastPage){
                     .col-md-1.col-xs-12
                         - var next = Number(start) + 10
-                        a(role='button' href='http://soren625.duckdns.org:3001/?start=' + next).btn.btn-primary.nextButton
+                        a(role='button' href='?start=' + next).btn.btn-primary.nextButton
                             span.glyphicon.glyphicon-arrow-right
                 - } else {
                     .col-md-1.col-xs-12
                         - var next = Number(start) + 10
-                        a(role='button' href='http://soren625.duckdns.org:3001/?start=' + next).btn.btn-primary.nextButton.disabled
+                        a(role='button' href='?start=' + next).btn.btn-primary.nextButton.disabled
                             span.glyphicon.glyphicon-arrow-right
                 - }
