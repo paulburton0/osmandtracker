@@ -14,7 +14,7 @@
     "express": "~4.15.2",
     "geolib": "^2.0.23",
     "mongodb": "^2.2.31",
-    "morgan": "~1.8.1",
+    "morgan": "~1.9.1",
     "pug": "~2.0.0-beta11",
     "request": "^2.83.0",
     "serve-favicon": "~2.4.2"
