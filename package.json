@@ -8,15 +8,15 @@
   },
   "author": "Paul Burton",
   "dependencies": {
-    "body-parser": "~1.17.1",
+    "body-parser": "^1.19.0",
     "cookie-parser": "~1.4.3",
     "debug": "~2.6.3",
-    "express": "~4.15.2",
+    "express": "^4.17.1",
     "geolib": "^2.0.23",
     "mongodb": "^2.2.31",
-    "morgan": "~1.8.1",
-    "pug": "~2.0.0-beta11",
-    "request": "^2.83.0",
+    "morgan": "^1.9.1",
+    "pug": "^2.0.4",
+    "request": "^2.88.2",
     "serve-favicon": "~2.4.2"
   },
   "repository": {
