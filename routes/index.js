@@ -3,8 +3,8 @@ var router = express.Router();
 var request = require('request');
 var track = require('../libs/track'); 
 
-const googleMapApiKey = 'KEY';
-const mapboxApiKey = 'KEY';
+const googleMapApiKey = process.env.GOOGLE_API_KEY;
+const mapboxApiKey = process.env.MAPBOX_API_KEY;
 
 router.get('/', function(req, res, next){
     var start = req.query.start ? req.query.start : 0;

@@ -1,0 +1,13 @@
+version: '3'
+services:
+    app:
+        build: .
+        ports:
+            - "3001:3001"
+        environment:
+            GOOGLE_API_KEY: 
+            MAPBOX_API_KEY:
+    db:
+        image: "mongo:latest"
+        volumes:
+            - "data"
